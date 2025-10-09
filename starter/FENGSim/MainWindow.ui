@@ -22,7 +22,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>FENGSim</string>
+   <string>新石器钴蓝信息科技有限公司</string>
   </property>
   <property name="windowIcon">
    <iconset resource="MainWindow.qrc">
@@ -72,7 +72,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -97,7 +97,7 @@
    </widget>
    <widget class="QMenu" name="menuFENGSim">
     <property name="title">
-     <string>FENGSim</string>
+     <string>Neolithic</string>
     </property>
     <widget class="QMenu" name="menuView">
      <property name="font">
@@ -644,17 +644,17 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="MeshWindow.qrc"/>
-  <include location="TransportWindow.qrc"/>
-  <include location="Rivet/RivetWindow.qrc"/>
-  <include location="System.qrc"/>
-  <include location="Machining/machining.qrc"/>
-  <include location="CADWindow.qrc"/>
-  <include location="SPCWindow.qrc"/>
-  <include location="Pipe/fig/PipeWindow.qrc"/>
-  <include location="MeasureWidnow.qrc"/>
-  <include location="OCPoro.qrc"/>
   <include location="MainWindow.qrc"/>
+  <include location="System.qrc"/>
+  <include location="Rivet/RivetWindow.qrc"/>
+  <include location="MeasureWidnow.qrc"/>
+  <include location="SPCWindow.qrc"/>
+  <include location="CADWindow.qrc"/>
+  <include location="MeshWindow.qrc"/>
+  <include location="OCPoro.qrc"/>
+  <include location="Machining/machining.qrc"/>
+  <include location="Pipe/fig/PipeWindow.qrc"/>
+  <include location="TransportWindow.qrc"/>
  </resources>
  <connections/>
 </ui>

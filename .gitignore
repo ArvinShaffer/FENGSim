@@ -1,0 +1,16 @@
+toolkit/Geometry/install/
+toolkit/Tools/qt/5.12.12/
+toolkit/Tools/qt/icu/
+toolkit/Tools/qt/qtcreator/bin/
+toolkit/Tools/qt/qtcreator/lib/
+toolkit/Tools/qt/qtcreator/libexec/
+toolkit/Tools/qt/qtcreator/share/
+build
+build-FENGSim*
+*.pro.user
+
+
+
+
+
+

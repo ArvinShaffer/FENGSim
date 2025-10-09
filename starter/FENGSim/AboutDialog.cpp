@@ -15,6 +15,13 @@ AboutDialog::AboutDialog(QWidget *parent) :
         // delete the title of the dialog
         setWindowFlags(Qt::FramelessWindowHint);
         // click the label and close the dialog
+        QFont font;
+        font.setPointSize(50);
+        font.setBold(true);
+        font.setItalic(true);
+        ui->label->setFont(font);
+        ui->label->setStyleSheet("color: black;");
+
         connect(ui->label,SIGNAL(clicked()),this,SLOT(CloseDialog()));
 
 

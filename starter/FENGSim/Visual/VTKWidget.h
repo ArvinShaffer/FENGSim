@@ -528,7 +528,7 @@ public:
     std::vector<QString> vtktext;
     vtkSmartPointer<vtkTextActor> textActor =
             vtkSmartPointer<vtkTextActor>::New();
-    void TextOutput (QString str = QString("Hi, Welcome to FENGSim! :-)"))
+    void TextOutput (QString str = QString("Hi, Welcome to Neolithic! :-)"))
     {
         vtktext.push_back(str);
         int n = vtktext.size();

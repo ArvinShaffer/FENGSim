@@ -78,7 +78,10 @@
       </size>
      </property>
      <property name="text">
-      <string/>
+      <string>Neolithic</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
      </property>
      <property name="pixmap">
       <pixmap resource="MainWindow.qrc">:/main_wind/image/Fengsim_logo_hi_2.png</pixmap>
