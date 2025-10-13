@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(ui->actionMesh, SIGNAL(triggered()), this, SLOT(OpenMeshModule()));
     connect(ui->actionSolver, SIGNAL(triggered()), this, SLOT(OpenSolverModule()));
     connect(ui->actionVisual, SIGNAL(triggered()), this, SLOT(OpenVisualModule()));
+    connect(ui->actionCalculix, SIGNAL(triggered()), this, SLOT(OpenCalculix()));
 
     QToolButton *cadView = new QToolButton(this);
     cadView->setPopupMode(QToolButton::InstantPopup);
@@ -105,8 +106,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     cad_dock = new CADDockWidget;
     physics_dock = new PhysicsDockWidget;
     mesh_dock = new MeshDockWidget;
+    cal_dock = new CalculixDockWidget;
     // dock for cad
     ui->dockWidget->move(100,200);
+
     // get a pencil and blackboard
     // ViewWidget = new QWidget(this);
     //    OCCw = new OCCWidget(this);
@@ -169,7 +172,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(cad_dock->ui->actionCut, SIGNAL(triggered()), this, SLOT(BooleanCut()));
     // more operations also change
     connect(cad_dock->ui->pushButton_36, SIGNAL(clicked()), this, SLOT(CommonOperations()));
-    connect(cad_dock->ui->actionSelectBnd, SIGNAL(triggered(bool)), this, SLOT(SelectBnd()));
+    //connect(cad_dock->ui->actionSelectBnd, SIGNAL(triggered(boolDockWidget)), this, SLOT(SelectBnd()));
     connect(cad_dock->ui->actionSelectDomain, SIGNAL(triggered(bool)), this, SLOT(SelectDomain()));
     //connect(cad_dock->ui->pushButton_8, SIGNAL(clicked()), this, SLOT(UpdateBndValue()));
     //connect(cad_dock->ui->pushButton_10, SIGNAL(clicked()), this, SLOT(OpenProject()));
@@ -254,9 +257,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     spc_dock = new SPCDockWidget;
     connect(ui->actionSPC, SIGNAL(triggered()), this, SLOT(OpenSPCModule()));
-
-
-
 
 
 
@@ -451,6 +451,7 @@ void MainWindow::SetActionChecked (int n) {
     ui->actionMesh->setChecked(false);
     ui->actionSolver->setChecked(false);
     ui->actionVisual->setChecked(false);
+    ui->actionCalculix->setChecked(false);
     if (n == 0)
         ui->actionCAD->setChecked(true);
     else if (n == 1)
@@ -461,6 +462,8 @@ void MainWindow::SetActionChecked (int n) {
         ui->actionSolver->setChecked(true);
     else if (n == 4)
         ui->actionVisual->setChecked(true);
+    else if (n == 5)
+        ui->actionCalculix->setChecked(true);
 }
 
 void MainWindow::OpenCADModule()
@@ -592,7 +595,25 @@ void MainWindow::OpenProject ()
 }
 
 
+void MainWindow::OpenCalculix()
+{
+    if (ui->actionCalculix->isChecked())
+    {
+        SetActionChecked(5);
 
+        vtk_widget->SetSelectable(true);
+        vtk_widget->SetSelectDomain(true);
+        //ui->dockWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        //ui->dockWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        //ui->dockWidget->update();
+        ui->dockWidget->setWidget(cal_dock);
+        ui->dockWidget->show();
+    }
+    else
+    {
+        ui->dockWidget->hide();
+    }
+}
 
 
 // ##############################################################################################
@@ -3612,7 +3633,6 @@ void MainWindow::OpenMachiningModule()
         // set open and close
 
         //                vtk_widget->Reset();
-
 
 
         ui->dockWidget->setWidget(machining_dock2);

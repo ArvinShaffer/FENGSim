@@ -21,6 +21,7 @@
 #include "Visual/VTKWidget.h"
 //#include "DataBase/DataBaseWindow.h"
 #include "FEM/FEMDockWidget.h"
+#include "FEM/CalculixDockWidget.h"
 #include "Measure/MeasureDockWidget.h"
 //#include "Measure/Registration.h"
 #include "AdditiveManufacturing/AdditiveManufacturingDockWidget.h"
@@ -86,6 +87,7 @@ private slots:
     void NewProject ();
     void OpenProject ();
 
+    void OpenCalculix();
 
 
     // ###############################################
@@ -146,6 +148,7 @@ private:
     MachiningDockWidget* machining_dock;
     MachiningDockWidget2* machining_dock2;
 
+    CalculixDockWidget* cal_dock;
 
     // cad data
     Primitives* parts;

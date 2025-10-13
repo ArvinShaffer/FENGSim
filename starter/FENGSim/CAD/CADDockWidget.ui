@@ -1575,8 +1575,8 @@ padding-left:5px;</string>
   </action>
  </widget>
  <resources>
-  <include location="../CADWindow.qrc"/>
   <include location="../MainWindow.qrc"/>
+  <include location="../CADWindow.qrc"/>
  </resources>
  <connections/>
 </ui>

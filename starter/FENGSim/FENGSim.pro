@@ -19,6 +19,7 @@ TEMPLATE = app
 
 SOURCES +=\
     CAD/PhysicsDockWidget.cpp \
+    FEM/CalculixDockWidget.cpp \
     FEM/FEMThread1.cpp \
     Machining/Machining2Thread.cpp \
     Machining/MachiningDockWidget2.cpp \
@@ -61,11 +62,13 @@ SOURCES +=\
     Machining/MachiningThread2.cpp \
     Machining/MakeTools.cpp \
     Transport/TransportDockWidget.cpp \
-    Rivet/RivetDockWidget.cpp
+    Rivet/RivetDockWidget.cpp  \
+    utils/IngReader.cpp
 
 
 HEADERS  += \
     CAD/PhysicsDockWidget.h \
+    FEM/CalculixDockWidget.h \
     FEM/FEMThread1.h \
     Machining/Machining2Thread.h \
     Machining/MachiningDockWidget2.h \
@@ -108,10 +111,12 @@ HEADERS  += \
     Machining/MachiningThread1.h \
     Machining/MachiningThread2.h \
     Transport/TransportDockWidget.h \
-    Rivet/RivetDockWidget.h
+    Rivet/RivetDockWidget.h  \
+    utils/IngReader.h
 
 FORMS    += \
     CAD/PhysicsDockWidget.ui \
+    FEM/CalculixDockWidget.ui \
     Machining/MachiningDockWidget2.ui \
     MainWindow.ui \
     AboutDialog.ui \

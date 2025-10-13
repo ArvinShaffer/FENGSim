@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>637</height>
+    <width>1569</width>
+    <height>1162</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -71,7 +71,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1569</width>
      <height>22</height>
     </rect>
    </property>
@@ -170,6 +170,12 @@
    <property name="allowedAreas">
     <set>Qt::TopToolBarArea</set>
    </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -196,8 +202,15 @@
    <addaction name="actionOCPoro"/>
    <addaction name="separator"/>
    <addaction name="actionAbout"/>
+   <addaction name="actionCalculix"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="minimumSize">
     <size>
      <width>180</width>
@@ -206,8 +219,8 @@
    </property>
    <property name="maximumSize">
     <size>
-     <width>180</width>
-     <height>420</height>
+     <width>400</width>
+     <height>600</height>
     </size>
    </property>
    <property name="font">
@@ -632,6 +645,14 @@
     <string>Pipe</string>
    </property>
   </action>
+  <action name="actionCalculix">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Cal</string>
+   </property>
+  </action>
   <zorder>dockWidget</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -644,17 +665,17 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="MainWindow.qrc"/>
   <include location="System.qrc"/>
-  <include location="Rivet/RivetWindow.qrc"/>
-  <include location="MeasureWidnow.qrc"/>
-  <include location="SPCWindow.qrc"/>
-  <include location="CADWindow.qrc"/>
-  <include location="MeshWindow.qrc"/>
-  <include location="OCPoro.qrc"/>
+  <include location="MainWindow.qrc"/>
   <include location="Machining/machining.qrc"/>
-  <include location="Pipe/fig/PipeWindow.qrc"/>
+  <include location="SPCWindow.qrc"/>
+  <include location="OCPoro.qrc"/>
+  <include location="Rivet/RivetWindow.qrc"/>
+  <include location="MeshWindow.qrc"/>
   <include location="TransportWindow.qrc"/>
+  <include location="Pipe/fig/PipeWindow.qrc"/>
+  <include location="CADWindow.qrc"/>
+  <include location="MeasureWidnow.qrc"/>
  </resources>
  <connections/>
 </ui>
