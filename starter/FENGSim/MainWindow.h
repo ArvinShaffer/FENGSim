@@ -366,6 +366,8 @@ public slots:
 
 
 
+    void ImportCalInpFile(const QString &path);
+
 
 
 

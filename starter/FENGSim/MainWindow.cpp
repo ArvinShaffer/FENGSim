@@ -416,6 +416,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(machining_dock2->ui->pushButton_7, SIGNAL(clicked(bool)), this, SLOT(Machining2Solver()));
     connect(machining_dock2->ui->pushButton_16, SIGNAL(clicked(bool)), this, SLOT(Machining2ImportMPMResults()));
 
+    // cal_dock
+    connect(cal_dock, &CalculixDockWidget::showInpFile, this, &MainWindow::ImportCalInpFile);
     return;
 }
 
@@ -595,6 +597,8 @@ void MainWindow::OpenProject ()
 }
 
 
+// ####################################Calculix######################################################
+
 void MainWindow::OpenCalculix()
 {
     if (ui->actionCalculix->isChecked())
@@ -615,6 +619,11 @@ void MainWindow::OpenCalculix()
     }
 }
 
+void MainWindow::ImportCalInpFile(const QString &str)
+{
+    vtk_widget->Clear();
+    vtk_widget->ImportCalInpFile(str.toStdString());
+}
 
 // ##############################################################################################
 // ##############################################################################################
@@ -848,6 +857,8 @@ void MainWindow::MakeCylinder (double r, double h,
     STLwriter.Write(*S,"data/cylinder.stl");
 
 }
+
+
 void MainWindow::MakeCone (double r1, double r2, double h,
                            double p1, double p2, double p3,
                            double d1, double d2, double d3)
@@ -860,6 +871,8 @@ void MainWindow::MakeCone (double r1, double r2, double h,
     vtk_widget->Plot(*(A->Value()));
     cout << "geometry num: "  << parts->size() << endl;
 }
+
+
 void MainWindow::MakeTorus (double r1, double r2,
                             double p1, double p2, double p3,
                             double d1, double d2, double d3)
@@ -1077,6 +1090,8 @@ void MainWindow::SetBooleanPart1()
         cad_dock->ui->actionPart1->setChecked(false);
     }
 }
+
+
 void MainWindow::SetBooleanPart2()
 {
     Obj2 = vtk_widget->GetSelectedActor();
@@ -1114,6 +1129,7 @@ void MainWindow::BooleanUnion()
     }
     cout  << "geometry num: " << parts->size() << endl;
 }
+
 void MainWindow::BooleanSection()
 {
     if (Obj1 != NULL && Obj2 != NULL)
@@ -1131,6 +1147,8 @@ void MainWindow::BooleanSection()
     }
     cout  << "geometry num: " << parts->size() << endl;
 }
+
+
 void MainWindow::BooleanCut()
 {
     if (Obj1 != NULL && Obj2 != NULL)
@@ -1244,6 +1262,8 @@ void MainWindow::CommonOperations()
         }
     }
 }
+
+
 void MainWindow::SelectBnd()
 {
     vtk_widget->PlotBnds();
@@ -1333,6 +1353,8 @@ void MainWindow::OpenMeasureModule()
         ui->dockWidget->hide();
     }
 }
+
+
 void MainWindow::OpenSPCModule()
 {
     if (ui->actionSPC->isChecked())
@@ -3884,6 +3906,7 @@ void MainWindow::MachiningSimulationAnimation()
     machining_ani_num = 0;
     machining_timer->singleShot(1, this, SLOT(MachiningSimulationPlot()));
 }
+
 #include <QDirIterator>
 void MainWindow::MachiningRecompute()
 {

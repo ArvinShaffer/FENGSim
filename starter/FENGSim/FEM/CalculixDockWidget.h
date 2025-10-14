@@ -29,6 +29,9 @@ private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
     QProcess process;
+
+signals:
+    void showInpFile(const QString &filePath);
 };
 
 #endif // CALCULIXDOCKWIDGET_H

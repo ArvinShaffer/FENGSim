@@ -24,7 +24,6 @@ void CalculixDockWidget::on_calPath_clicked()
     if (!calPath.isEmpty()) {
         qDebug() << "求解器路径" << calPath;
     }
-
 }
 
 void CalculixDockWidget::on_openCalpre_clicked()
@@ -38,12 +37,15 @@ void CalculixDockWidget::on_openCalpre_clicked()
     if (!prePath.isEmpty()) {
         qDebug() << "选中的fbl文件" << prePath;
     }
-    QString cmd = calPath + "/bin/cgx -b " + prePath;
+    //QString cmd = calPath + "/bin/cgx -b " + prePath;
+    QString cmd = calPath + "/bin/cgx -bg " + prePath;
     qDebug() << cmd ;    //auto grid = IngReader::Load();
     process.start(cmd);
-    //process.waitForFinished();
+    process.waitForFinished();
 
     QString mshPath = QFileInfo(prePath).absolutePath() + "/all.msh";
     qDebug() << mshPath;
+    emit showInpFile(mshPath);
+
 }
 

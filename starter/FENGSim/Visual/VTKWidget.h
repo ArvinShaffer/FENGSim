@@ -59,6 +59,8 @@ public:
     void Clear ();
     void ImportVTKFile (std::string name, int type=0, int n=0);
 
+    void ImportCalInpFile(std::string str);
+
 
     void ImportVTKFileCloudColorFinal(double t=0.05);
     // additive manufacturing

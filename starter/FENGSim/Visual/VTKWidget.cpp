@@ -21,6 +21,7 @@ VTK_MODULE_INIT(vtkRenderingFreeType)
 #include <vtkSmartPointer.h>
 #include <vtkSimplePointsReader.h>
 
+#include "../utils/IngReader.h"
 
 //double COLOR0[3] = {0.75, 0.75, 0.75};
 //double COLOR0[3] = {64.0/255.0, 158.0/255.0, 166.0/255.0};
@@ -770,6 +771,26 @@ void VTKWidget::ImportVTKFile(std::string name, int type, int n)
     // Reset the camera clipping range based on the bounds of the visible actors.
     // This ensures that no props are cut off
     // redraw
+    GetRenderWindow()->Render();
+}
+
+void VTKWidget::ImportCalInpFile(std::string str)
+{
+    std::cout << "importcalinpfile   " << str << std::endl;
+    std::string err;
+    auto grid = IngReader::Load(str, &err);
+    if (!err.empty()) {
+        qWarning("InReader error: %s", err.c_str());
+    }
+
+    auto mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    mapper->SetInputData(grid);
+    auto actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+    actor->GetProperty()->EdgeVisibilityOn();
+
+    renderer->AddActor(actor);
+    renderer->ResetCameraClippingRange();
     GetRenderWindow()->Render();
 }
 
