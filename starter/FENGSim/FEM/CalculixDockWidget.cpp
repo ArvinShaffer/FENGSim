@@ -38,17 +38,13 @@ void CalculixDockWidget::on_openCalpre_clicked()
         qDebug() << "选中的fbl文件" << prePath;
         //QString cmd = calPath + "/bin/cgx -b " + prePath;
         QString cmd = calPath + "/bin/cgx -bg " + prePath;
-        qDebug() << cmd ;    //auto grid = IngReader::Load();
+        qDebug() << cmd ;
+        //workPath = prePath.left(prePath.lastIndexOf('.')) + '/';
+        workPath = prePath.left(prePath.lastIndexOf('/') + 1);
+        qDebug() << workPath ;
+        process.setWorkingDirectory(workPath);
         process.start(cmd);
         process.waitForFinished();
-        int lastSlash = prePath.lastIndexOf('/');
-        if (lastSlash != -1) {
-            QString cmd2 = "mv all.msh " + prePath.left(lastSlash + 1);
-            qDebug() << cmd2;
-            process.start(cmd2);
-            process.waitForFinished();
-        }
-
         QString mshPath = QFileInfo(prePath).absolutePath() + "/all.msh";
         qDebug() << mshPath;
         emit showInpFile(mshPath);

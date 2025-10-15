@@ -31,6 +31,7 @@ private slots:
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
+    QString workPath;
     QProcess process;
 
 signals:
