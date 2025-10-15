@@ -776,7 +776,7 @@ void VTKWidget::ImportVTKFile(std::string name, int type, int n)
 
 void VTKWidget::ImportCalInpFile(std::string str)
 {
-    std::cout << "importcalinpfile   " << str << std::endl;
+    //std::cout << "importcalinpfile   " << str << std::endl;
     std::string err;
     auto grid = IngReader::Load(str, &err);
     if (!err.empty()) {

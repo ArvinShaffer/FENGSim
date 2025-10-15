@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QDebug>
 
 namespace Ui {
@@ -24,6 +25,8 @@ private slots:
     void on_openCalpre_clicked();
 
     void on_calPath_clicked();
+
+    void on_calSolver_clicked();
 
 private:
     Ui::CalculixDockWidget *ui;
