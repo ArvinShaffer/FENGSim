@@ -19,10 +19,12 @@ void CalculixDockWidget::on_calPath_clicked()
     calPath = QFileDialog::getExistingDirectory(
                 this,
                 tr("选择求解器路径"),
-                "../../",
+                "../../toolkit/MultiX/extern/Calculix",
                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (!calPath.isEmpty()) {
         qDebug() << "求解器路径" << calPath;
+        frd2vtu = calPath + "/ccx2paraview/ccx2paraview.py";
+        qDebug() << "frd to vtu" << frd2vtu;
     }
 }
 
@@ -68,4 +70,39 @@ void CalculixDockWidget::on_calSolver_clicked()
         process.waitForFinished();
         QMessageBox::information(this, "提示", "求解完成");
     }
+}
+
+void CalculixDockWidget::on_frd2vtu_clicked()
+{
+    if(calPath.isEmpty()) {
+        QMessageBox::warning(this, "警告", "请配置求解器路径");
+    } else {
+        QString frdFilePath = QFileDialog::getOpenFileName(this, tr("选择frd文件"), "..", tr("inp文件(*.frd)"));
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        QString ld = env.value("LD_LIBRARY_PATH");
+
+        QStringList parts;
+        parts = ld.split(QLatin1Char(':'), QString::SkipEmptyParts);
+        QString qtPath = QDir::homePath() + "/FENGSim/toolkit/Tools/qt/5.12.12/lib";
+        parts.removeAll(qtPath);
+        env.insert("LD_LIBRARY_PATH", parts.join(QLatin1Char(':')));
+        process.setProcessEnvironment(env);
+
+        process.start("python3", {
+            frd2vtu,
+            frdFilePath, "vtu"
+        });
+        process.waitForFinished();
+        QString output = process.readAllStandardOutput();
+        QString error = process.readAllStandardError();
+        qDebug() << "输出:" << output.trimmed();
+        if (!error.isEmpty())
+            qDebug() << "错误:" << error.trimmed();
+        QMessageBox::information(this, "提示", "数据转换完成");
+    }
+}
+
+void CalculixDockWidget::on_calRes_clicked()
+{
+
 }

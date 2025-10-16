@@ -28,10 +28,15 @@ private slots:
 
     void on_calSolver_clicked();
 
+    void on_calRes_clicked();
+
+    void on_frd2vtu_clicked();
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
     QString workPath;
+    QString frd2vtu;
     QProcess process;
 
 signals:
