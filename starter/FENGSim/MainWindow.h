@@ -364,9 +364,19 @@ public slots:
     // visualization
     void ImportVTKFile();
 
-
-
+    // *******************************************************
+    // calculix
+    // *******************************************************
+private:
+    QTimer *vtuTimer = new QTimer;
+    bool vtuPlaying{false};
+    double vtuBaseScale{0.05};
+    double vtuHz{1.0};
+    double vtutimeSec{0.0};
+public slots:
     void ImportCalInpFile(const QString &path);
+    void ImportVtuFile(const QString &path);
+    void vtuAnimationSlot();
 
 
 

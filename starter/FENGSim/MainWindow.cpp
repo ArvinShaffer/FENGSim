@@ -417,7 +417,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(machining_dock2->ui->pushButton_16, SIGNAL(clicked(bool)), this, SLOT(Machining2ImportMPMResults()));
 
     // cal_dock
+    vtuTimer->setInterval(200);
+    //vtuTimer->start();
     connect(cal_dock, &CalculixDockWidget::showInpFile, this, &MainWindow::ImportCalInpFile);
+    connect(cal_dock, &CalculixDockWidget::showVtuFile, this, &MainWindow::ImportVtuFile);
+    connect(vtuTimer, &QTimer::timeout, this, &MainWindow::vtuAnimationSlot);
+    //connect(cal_dock, &CalculixDockWidget::vtuAnimation, this, &MainWindow::vtuAnimationSlot);
     return;
 }
 
@@ -625,6 +630,20 @@ void MainWindow::ImportCalInpFile(const QString &str)
     vtk_widget->ImportCalInpFile(str.toStdString());
 }
 
+void MainWindow::ImportVtuFile(const QString &path)
+{
+    vtk_widget->Clear();
+    vtk_widget->ImportVtuFile(path);
+    vtuTimer->start();
+}
+
+void MainWindow::vtuAnimationSlot()
+{
+    vtutimeSec += vtuTimer->interval() / 1000.0;
+    const double s = vtuBaseScale * std::sin(2.0 * 3.1415926 * vtuHz * vtutimeSec);
+    //qDebug() << "vtutimeSce: " << vtutimeSec << " s: " << s ;
+    vtk_widget->updateVtuAnimation(s);
+}
 // ##############################################################################################
 // ##############################################################################################
 // ##############################################################################################

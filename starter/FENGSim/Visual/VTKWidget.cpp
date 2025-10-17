@@ -2,8 +2,6 @@
 #include "vtkLookupTable.h"
 #include "vtkProperty.h"
 #include "vtkUnstructuredGridReader.h"
-#include "vtkDataSetMapper.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAlgorithm.h"
 #include "vtkCamera.h"
@@ -791,6 +789,42 @@ void VTKWidget::ImportCalInpFile(std::string str)
 
     renderer->AddActor(actor);
     renderer->ResetCameraClippingRange();
+    GetRenderWindow()->Render();
+}
+
+#include <QDebug>
+void VTKWidget::ImportVtuFile(const QString& file)
+{
+    qDebug() << "vtkwidget vtu file path: " << file;
+    vtuReader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    vtuReader->SetFileName(file.toUtf8().constData());
+    vtuReader->Update();
+    vtuug = vtuReader->GetOutput();
+    if (!vtuug || vtuug->GetNumberOfPoints() == 0) {
+        qDebug() << "读取vtu文件失败" ;
+    }
+    vtuWarp = vtkSmartPointer<vtkWarpVector>::New();
+    vtuWarp->SetScaleFactor(0.0);
+    vtuWarp->SetInputData(vtuug);
+    QString name = "U";
+    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name.toUtf8().constData());
+    vtuWarp->Update();
+
+    vtuMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
+
+    vtuActor = vtkSmartPointer<vtkActor>::New();
+    vtuActor->SetMapper(vtuMapper);
+
+    renderer->AddActor(vtuActor);
+    renderer->ResetCamera();
+    GetRenderWindow()->Render();
+}
+
+void VTKWidget::updateVtuAnimation(double s)
+{
+    vtuWarp->SetScaleFactor(s);
+    vtuWarp->Update();
     GetRenderWindow()->Render();
 }
 

@@ -1,12 +1,15 @@
 #include "CalculixDockWidget.h"
 #include "ui_CalculixDockWidget.h"
 
-
 CalculixDockWidget::CalculixDockWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CalculixDockWidget)
 {
     ui->setupUi(this);
+
+    timer.setInterval(16);
+    connect(&timer, &QTimer::timeout, this, &CalculixDockWidget::onTick);
+
 }
 
 CalculixDockWidget::~CalculixDockWidget()
@@ -104,5 +107,40 @@ void CalculixDockWidget::on_frd2vtu_clicked()
 
 void CalculixDockWidget::on_calRes_clicked()
 {
+    QString vtuPath = QFileDialog::getOpenFileName(
+                this,
+                tr("选择vtu文件"),
+                "..",
+                tr("vtu文件(*.vtu)"));
+    if (!vtuPath.isEmpty()) {
+        qDebug() << "选中的vtu文件" << vtuPath;
+        emit showVtuFile(vtuPath);
+    } else {
+        QMessageBox::warning(this, "警告", "请选择vtu文件");
+    }
+}
 
+void CalculixDockWidget::onTick()
+{
+    if (!playing) return;
+
+    timeSec += timer.interval() / 1000.0;
+    const double pi = 3.14159265358979323846;
+    const double s = baseScale * std::sin(2.0 * pi * freqHz * timeSec);
+    emit vtuAnimation(s);
+}
+
+void CalculixDockWidget::on_playVtu_clicked()
+{
+    playing = !playing;
+    if (playing)
+    {
+        ui->playVtu->setText("暂停");
+        timeSec = 0.0;
+        timer.start();
+    } else {
+        ui->playVtu->setText("播放");
+        timer.stop();
+        emit vtuAnimation(baseScale);
+    }
 }

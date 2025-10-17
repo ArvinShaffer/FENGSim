@@ -28,6 +28,10 @@
 #include "vtkTransformFilter.h"
 #include "vtkVoxelGrid.h"
 #include "vtkScalarBarActor.h"
+#include "vtkWarpVector.h"
+#include "vtkDataSetMapper.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 class VTKWidget : public QVTKOpenGLWidget
 {
@@ -60,6 +64,9 @@ public:
     void ImportVTKFile (std::string name, int type=0, int n=0);
 
     void ImportCalInpFile(std::string str);
+    void ImportVtuFile(const QString& file);
+    void vtuSetupEmptyScene();
+    void updateVtuAnimation(double s);
 
 
     void ImportVTKFileCloudColorFinal(double t=0.05);
@@ -134,6 +141,7 @@ public:
         GetRenderWindow()->Render();
 
     }
+
     void ClearCloudTarget ()
     {
         Clear(meas_cloud_target_actor);
@@ -220,7 +228,12 @@ private:
     CADDockWidget* cad_dw;
     PhysicsDockWidget* phy_dw;
 
-
+    //vtkSmartPointer<vtkRenderer> vtuRenderer;
+    vtkSmartPointer<vtkXMLUnstructuredGridReader> vtuReader;
+    vtkSmartPointer<vtkUnstructuredGrid> vtuug;
+    vtkSmartPointer<vtkWarpVector> vtuWarp;
+    vtkSmartPointer<vtkDataSetMapper> vtuMapper;
+    vtkSmartPointer<vtkActor> vtuActor;
 
 
 
