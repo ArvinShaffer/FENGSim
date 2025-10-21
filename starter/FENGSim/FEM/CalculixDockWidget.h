@@ -48,7 +48,7 @@ private:
 
     // 状态
     bool   playing{false};
-    double baseScale{0.3};  // 滑条 0~0.5 的工程单位
+    double baseScale{0.1};  // 滑条 0~0.5 的工程单位
     double freqHz{1.0};
     double timeSec{0.0};
 

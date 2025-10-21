@@ -772,11 +772,15 @@ void VTKWidget::ImportVTKFile(std::string name, int type, int n)
     GetRenderWindow()->Render();
 }
 
+#include <QDebug>
 void VTKWidget::ImportCalInpFile(std::string str)
 {
     //std::cout << "importcalinpfile   " << str << std::endl;
     std::string err;
     auto grid = IngReader::Load(str, &err);
+    qDebug() << "points:" << grid->GetNumberOfPoints()
+             << "cells:"  << grid->GetNumberOfCells();
+
     if (!err.empty()) {
         qWarning("InReader error: %s", err.c_str());
     }

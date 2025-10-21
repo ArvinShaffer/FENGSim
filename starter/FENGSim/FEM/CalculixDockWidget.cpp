@@ -35,9 +35,9 @@ void CalculixDockWidget::on_openCalpre_clicked()
 {
     QString prePath = QFileDialog::getOpenFileName(
                 this,
-                tr("选择fbl文件"),
+                tr("选择fbl,fbd文件"),
                 "..",
-                tr("FBL(*.fbl)"));
+                tr("FBL(*.fbl *.fbd)"));
 
     if (!prePath.isEmpty()) {
         qDebug() << "选中的fbl文件" << prePath;
@@ -46,7 +46,7 @@ void CalculixDockWidget::on_openCalpre_clicked()
         qDebug() << cmd ;
         //workPath = prePath.left(prePath.lastIndexOf('.')) + '/';
         workPath = prePath.left(prePath.lastIndexOf('/') + 1);
-        qDebug() << workPath ;
+        //qDebug() << workPath ;
         process.setWorkingDirectory(workPath);
         process.start(cmd);
         process.waitForFinished();
