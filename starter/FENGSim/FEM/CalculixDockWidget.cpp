@@ -219,15 +219,7 @@ void CalculixDockWidget::on_calSolver_clicked()
         QString inpName = inpFilePath.left(inpFilePath.lastIndexOf('.'));
         QString ccxCmd = calPath + "/bin/ccx_2.21 " + inpName;
         qDebug() << ccxCmd;
-//        QString out, err;
-//        bool ok = runCommandLine(ccxCmd, &out, &err);
-//        if (ok) {
-//            qDebug() << "Command executed successfully!";
-//        } else {
-//            qWarning() << " solve failed";
-//        }
         runCommandWithProgress(this, ccxCmd);
-        QMessageBox::information(this, "提示", "求解完成");
     }
 }
 
