@@ -12,6 +12,12 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
+#include <QProgressBar>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QTextEdit>
+#include <QPushButton>
 
 namespace Ui {
 class CalculixDockWidget;
@@ -44,6 +50,8 @@ private slots:
     void ensureCgxAllowSys();
 
     bool runCommandLine(const QString &command, QString *stdOut = nullptr, QString *stdErr = nullptr);
+
+    void runCommandWithProgress(QWidget *parent, const QString &command);
 
 private:
     Ui::CalculixDockWidget *ui;

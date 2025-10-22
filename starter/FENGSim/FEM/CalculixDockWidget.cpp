@@ -89,6 +89,68 @@ bool CalculixDockWidget::runCommandLine(const QString &command, QString *stdOut,
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
+void CalculixDockWidget::runCommandWithProgress(QWidget *parent, const QString &command)
+{
+    auto *dialog = new QDialog(parent);
+    dialog->setWindowTitle("运行中...");
+    dialog->resize(600, 400);
+
+    auto *layout = new QVBoxLayout(dialog);
+    auto *label = new QLabel(QString("正在执行命令：\n%1").arg(command));
+    layout->addWidget(label);
+
+    auto *progress = new QProgressBar(dialog);
+    progress->setRange(0, 0); // 无限循环模式
+    layout->addWidget(progress);
+
+    auto *text = new QTextEdit(dialog);
+    text->setReadOnly(true);
+    layout->addWidget(text, 1);
+
+    auto *btnCancel = new QPushButton("取消", dialog);
+    layout->addWidget(btnCancel);
+
+    // 拆分命令行
+    QStringList parts = splitCommandManual(command);
+    for (QString &p : parts)
+        if (p.startsWith('"') && p.endsWith('"')) p = p.mid(1, p.length() - 2);
+
+    QString program = parts.takeFirst();
+    auto *process = new QProcess(dialog);
+    process->setProcessChannelMode(QProcess::MergedChannels);
+
+    QObject::connect(process, &QProcess::readyReadStandardOutput, [=]() {
+        text->append(QString::fromLocal8Bit(process->readAllStandardOutput()));
+        text->moveCursor(QTextCursor::End);
+    });
+
+    QObject::connect(process, &QProcess::readyReadStandardError, [=]() {
+        text->append(QString::fromLocal8Bit(process->readAllStandardError()));
+        text->moveCursor(QTextCursor::End);
+    });
+    QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                     [=](int code, QProcess::ExitStatus status) {
+        progress->setRange(0, 1);
+        progress->setValue(1);
+        QString msg = (status == QProcess::NormalExit && code == 0)
+                ? "✅ 任务完成"
+                : QString("❌ 任务失败，退出码 %1").arg(code);
+        label->setText(msg);
+        btnCancel->setText("关闭");
+    });
+    QObject::connect(btnCancel, &QPushButton::clicked, [=]() {
+        if (process->state() == QProcess::Running) {
+            process->kill();
+            process->waitForFinished(1000);
+        }
+        dialog->close();
+    });
+
+    process->setWorkingDirectory(workPath);
+    process->start(program, parts);
+    dialog->exec();
+}
+
 void CalculixDockWidget::on_calPath_clicked()
 {
     calPath = QFileDialog::getExistingDirectory(
@@ -157,13 +219,14 @@ void CalculixDockWidget::on_calSolver_clicked()
         QString inpName = inpFilePath.left(inpFilePath.lastIndexOf('.'));
         QString ccxCmd = calPath + "/bin/ccx_2.21 " + inpName;
         qDebug() << ccxCmd;
-        QString out, err;
-        bool ok = runCommandLine(ccxCmd, &out, &err);
-        if (ok) {
-            qDebug() << "Command executed successfully!";
-        } else {
-            qWarning() << " solve failed";
-        }
+//        QString out, err;
+//        bool ok = runCommandLine(ccxCmd, &out, &err);
+//        if (ok) {
+//            qDebug() << "Command executed successfully!";
+//        } else {
+//            qWarning() << " solve failed";
+//        }
+        runCommandWithProgress(this, ccxCmd);
         QMessageBox::information(this, "提示", "求解完成");
     }
 }
