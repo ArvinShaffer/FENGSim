@@ -6,7 +6,9 @@ toolkit/Tools/qt/qtcreator/lib/
 toolkit/Tools/qt/qtcreator/libexec/
 toolkit/Tools/qt/qtcreator/share/
 toolkit/MultiX/
+toolkit/DAE
 starter/ccx/Mesh1/*
+starter/ccx
 build
 build-FENGSim*
 *.pro.user

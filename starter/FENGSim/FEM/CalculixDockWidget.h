@@ -9,6 +9,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QtMath>
+#include <QFile>
+#include <QTextStream>
+#include <QDir>
 
 namespace Ui {
 class CalculixDockWidget;
@@ -37,6 +40,10 @@ private slots:
     void onTick();
 
     void on_playVtu_clicked();
+
+    void ensureCgxAllowSys();
+
+    bool runCommandLine(const QString &command, QString *stdOut = nullptr, QString *stdErr = nullptr);
 
 private:
     Ui::CalculixDockWidget *ui;
