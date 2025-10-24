@@ -67,6 +67,10 @@ public:
     void ImportVtuFile(const QString& file);
     void vtuSetupEmptyScene();
     void updateVtuAnimation(double s);
+    QString getVectorArrayName() const;
+    QString getScalarArrayName() const;
+    void applyColoring(const QString& scalarArrayName);
+
 
 
     void ImportVTKFileCloudColorFinal(double t=0.05);
@@ -234,7 +238,10 @@ private:
     vtkSmartPointer<vtkWarpVector> vtuWarp;
     vtkSmartPointer<vtkDataSetMapper> vtuMapper;
     vtkSmartPointer<vtkActor> vtuActor;
-
+    QString vtuVecName;
+    QString vtuSclName;
+    bool vtuAutoScalarRange = true;
+    double vtuScalarMin = 0.0, vtuScalarMax = 1.0;
 
 
 
