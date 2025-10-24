@@ -377,6 +377,7 @@ public slots:
     void ImportCalInpFile(const QString &path);
     void ImportVtuFile(const QString &path);
     void vtuAnimationSlot();
+    void slotPlayPause(bool playing);
 
 
 

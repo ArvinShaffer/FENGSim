@@ -7,8 +7,8 @@ CalculixDockWidget::CalculixDockWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    timer.setInterval(16);
-    connect(&timer, &QTimer::timeout, this, &CalculixDockWidget::onTick);
+    //timer.setInterval(16);
+    //connect(&timer, &QTimer::timeout, this, &CalculixDockWidget::onTick);
     ensureCgxAllowSys();
 
 }
@@ -270,15 +270,6 @@ void CalculixDockWidget::on_calRes_clicked()
     }
 }
 
-void CalculixDockWidget::onTick()
-{
-    if (!playing) return;
-
-    timeSec += timer.interval() / 1000.0;
-    const double pi = 3.14159265358979323846;
-    const double s = baseScale * std::sin(2.0 * pi * freqHz * timeSec);
-    emit vtuAnimation(s);
-}
 
 void CalculixDockWidget::on_playVtu_clicked()
 {
@@ -286,11 +277,10 @@ void CalculixDockWidget::on_playVtu_clicked()
     if (playing)
     {
         ui->playVtu->setText("暂停");
-        timeSec = 0.0;
-        timer.start();
+        emit signalPlayPause(playing);
+
     } else {
         ui->playVtu->setText("播放");
-        timer.stop();
-        emit vtuAnimation(baseScale);
+        emit signalPlayPause(playing);
     }
 }

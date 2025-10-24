@@ -43,8 +43,6 @@ private slots:
 
     void on_frd2vtu_clicked();
 
-    void onTick();
-
     void on_playVtu_clicked();
 
     void ensureCgxAllowSys();
@@ -59,7 +57,7 @@ private:
     QString workPath;
     QString frd2vtu;
     QProcess process;
-    QTimer timer;
+    //QTimer timer;
 
     // 状态
     bool   playing{false};
@@ -71,8 +69,8 @@ private:
 signals:
     void showInpFile(const QString &filePath);
     void showVtuFile(const QString &filePath);
+    void signalPlayPause(bool playing);
 
-    void vtuAnimation(double s);
 };
 
 #endif // CALCULIXDOCKWIDGET_H

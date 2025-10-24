@@ -422,7 +422,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(cal_dock, &CalculixDockWidget::showInpFile, this, &MainWindow::ImportCalInpFile);
     connect(cal_dock, &CalculixDockWidget::showVtuFile, this, &MainWindow::ImportVtuFile);
     connect(vtuTimer, &QTimer::timeout, this, &MainWindow::vtuAnimationSlot);
-    //connect(cal_dock, &CalculixDockWidget::vtuAnimation, this, &MainWindow::vtuAnimationSlot);
+    connect(cal_dock, &CalculixDockWidget::signalPlayPause, this, &MainWindow::slotPlayPause);
+
     return;
 }
 
@@ -634,7 +635,7 @@ void MainWindow::ImportVtuFile(const QString &path)
 {
     vtk_widget->Clear();
     vtk_widget->ImportVtuFile(path);
-    vtuTimer->start();
+    //vtuTimer->start();
 }
 
 void MainWindow::vtuAnimationSlot()
@@ -643,6 +644,17 @@ void MainWindow::vtuAnimationSlot()
     const double s = vtuBaseScale * std::sin(2.0 * 3.1415926 * vtuHz * vtutimeSec);
     //qDebug() << "vtutimeSce: " << vtutimeSec << " s: " << s ;
     vtk_widget->updateVtuAnimation(s);
+}
+
+void MainWindow::slotPlayPause(bool playing)
+{
+    if(playing) {
+        vtutimeSec = 0.0;
+        vtuTimer->start();
+    } else {
+        vtuTimer->stop();
+        vtk_widget->updateVtuAnimation(vtuBaseScale);
+    }
 }
 // ##############################################################################################
 // ##############################################################################################
