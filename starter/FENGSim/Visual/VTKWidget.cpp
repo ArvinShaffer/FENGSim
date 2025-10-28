@@ -842,16 +842,32 @@ void VTKWidget::applyColoring(const QString& scalarArrayName)
         vtuMapper->SelectColorArray(scalarArrayName.toUtf8().constData());
         vtuMapper->InterpolateScalarsBeforeMappingOn();
 
+        double rng[2] = {0, 1};
         if (vtuAutoScalarRange) {
-            vtuMapper->SetUseLookupTableScalarRange(false);
-            vtuMapper->SetScalarRange(vtuug->GetPointData()->GetArray(scalarArrayName.toUtf8().constData())->GetRange());
+            auto* arr = vtuug->GetPointData()->GetArray(scalarArrayName.toUtf8().constData());
+            if (arr) arr->GetRange(rng);
         } else {
-            vtuMapper->SetUseLookupTableScalarRange(false);
-            vtuMapper->SetScalarRange(vtuScalarMin, vtuScalarMax);
+            rng[0] = vtuScalarMin;
+            rng[1] = vtuScalarMax;
         }
 
+        // ★ 自定义一个 “低值蓝，高值红” 的查色表
+        vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
+        lut->SetNumberOfTableValues(256);
+        // Hue: 蓝(≈0.667) -> 红(0.0)；S/V 保持 1.0 得到鲜艳色
+        lut->SetHueRange(0.667, 0.0);
+        lut->SetSaturationRange(1.0, 1.0);
+        lut->SetValueRange(1.0, 1.0);
+        lut->SetRange(rng);     // ★ 把数值范围设到 LUT 上
+        lut->Build();
+
+        // ★ 让 mapper 使用我们自己的 LUT，并使用 LUT 的范围
+        vtuMapper->SetLookupTable(lut);
+        vtuMapper->UseLookupTableScalarRangeOn();
+        vtuMapper->ScalarVisibilityOn();
+
         // 颜色条
-        scalarBar->SetLookupTable(vtuMapper->GetLookupTable());
+        scalarBar->SetLookupTable(lut);
         scalarBar->SetNumberOfLabels(5);
         scalarBar->SetTitle(scalarArrayName.toUtf8().constData());
         renderer->AddActor2D(scalarBar);
