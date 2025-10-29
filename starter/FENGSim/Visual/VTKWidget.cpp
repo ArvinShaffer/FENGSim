@@ -796,42 +796,29 @@ void VTKWidget::ImportCalInpFile(std::string str)
     GetRenderWindow()->Render();
 }
 
-QString VTKWidget::getVectorArrayName() const
+void VTKWidget::getVectorArrayName()
 {
-    // 常见命名：DISPLACEMENT, U, VECTORS
-    static const char* candidates[] = {"DISPLACEMENT","U","VECTORS","Velocity","VELOCITY"};
     auto* pd = vtuug->GetPointData();
-    if (!pd) return {};
-
-    // 先按候选名
-    for (auto c : candidates) {
-        auto* arr = pd->GetArray(c);
-        if (arr && arr->GetNumberOfComponents()==3) return c;
-    }
     // 再找任意 3 分量数组
-    for (int i=0;i<pd->GetNumberOfArrays();++i){
+    for (int i=0; i < pd->GetNumberOfArrays(); ++i){
         auto* arr = pd->GetArray(i);
-        if (arr && arr->GetNumberOfComponents()==3) return arr->GetName();
+        if (arr && arr->GetNumberOfComponents()==3) {
+            vtuVecName.append(arr->GetName());
+        }
     }
-    return {};
 }
 
-QString VTKWidget::getScalarArrayName() const
+void VTKWidget::getScalarArrayName()
 {
-    // 常见命名：S, Scalar, Stress, VonMises
-    static const char* candidates[] = {"S","Scalar","SCALAR","Stress","STRESS","VonMises","VONMISES"};
     auto* pd = vtuug->GetPointData();
-    if (!pd) return {};
-    for (auto c : candidates) {
-        auto* arr = pd->GetArray(c);
-        if (arr && arr->GetNumberOfComponents()==1) return c;
-    }
     // 任意 1 分量数组
-    for (int i=0;i<pd->GetNumberOfArrays();++i){
-        auto* arr = pd->GetArray(i);
-        if (arr && arr->GetNumberOfComponents()==1) return arr->GetName();
+    for (int i=0; i < pd->GetNumberOfArrays(); ++i){
+        if (auto* arr = pd->GetArray(i)) {
+            if (arr->GetName()) {
+                vtuSclName.append(arr->GetName());
+            }
+        }
     }
-    return {};
 }
 
 void VTKWidget::applyColoring(const QString& scalarArrayName)
@@ -887,15 +874,17 @@ void VTKWidget::ImportVtuFile(const QString& file)
         qDebug() << "读取vtu文件失败" ;
     }
 
-    vtuVecName = getVectorArrayName();
-    vtuSclName = getScalarArrayName();
-
+    getVectorArrayName();
+    getScalarArrayName();
+    qDebug() << "vtuVecName: " << vtuVecName << " vtuSclName: " << vtuSclName;
 
     vtuWarp = vtkSmartPointer<vtkWarpVector>::New();
     vtuWarp->SetScaleFactor(0.0);
     vtuWarp->SetInputData(vtuug);
-    QString name = "U";
-    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name.toUtf8().constData());
+    if (vtuVecName.isEmpty()) {
+        vtuVecName.append("U");
+    }
+    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtuVecName[0].toUtf8().constData());
     vtuWarp->Update();
 
     vtuMapper = vtkSmartPointer<vtkDataSetMapper>::New();
@@ -906,7 +895,8 @@ void VTKWidget::ImportVtuFile(const QString& file)
 
     renderer->AddActor(vtuActor);
 
-    applyColoring(vtuSclName);
+    QString test = "S";
+    applyColoring(test);
 
     renderer->ResetCamera();
     GetRenderWindow()->Render();

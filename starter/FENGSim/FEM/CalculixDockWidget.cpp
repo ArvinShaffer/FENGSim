@@ -7,10 +7,7 @@ CalculixDockWidget::CalculixDockWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //timer.setInterval(16);
-    //connect(&timer, &QTimer::timeout, this, &CalculixDockWidget::onTick);
     ensureCgxAllowSys();
-
 }
 
 CalculixDockWidget::~CalculixDockWidget()
@@ -82,9 +79,9 @@ bool CalculixDockWidget::runCommandLine(const QString &command, QString *stdOut,
     if (stdOut) *stdOut = stdoutText;
     if (stdErr) *stdErr = stderrText;
 
-    qDebug().noquote() << "[Output]\n" << stdoutText;
+    qDebug().noquote() << "[Output]CalculixDockwidget \n" << stdoutText;
     if (!stderrText.isEmpty())
-        qWarning().noquote() << "[Error]\n" << stderrText;
+        qWarning().noquote() << "[Error]CalculixDockwidget \n" << stderrText;
 
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
@@ -159,7 +156,7 @@ void CalculixDockWidget::on_calPath_clicked()
                 "../../toolkit/MultiX/extern/Calculix",
                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (!calPath.isEmpty()) {
-        qDebug() << "求解器路径" << calPath;
+        qDebug() << "CalculixDockwidget 求解器路径" << calPath;
         frd2vtu = calPath + "/ccx2paraview/ccx2paraview.py";
         //qDebug() << "frd to vtu" << frd2vtu;
     }
@@ -184,10 +181,10 @@ void CalculixDockWidget::on_openCalpre_clicked()
                 tr("FBL(*.fbl *.fbd)"));
 
     if (!prePath.isEmpty()) {
-        qDebug() << "选中的fbl文件" << prePath;
+        qDebug() << "CalculixDockwidget 选中的fbl文件" << prePath;
         //QString cmd = calPath + "/bin/cgx -b " + prePath;
         QString cmd = calPath + "/bin/cgx -bg " + prePath;
-        qDebug() << cmd ;
+        qDebug() << "CalculixDockwidget " << cmd ;
         //workPath = prePath.left(prePath.lastIndexOf('.')) + '/';
         workPath = prePath.left(prePath.lastIndexOf('/') + 1);
         //qDebug() << workPath ;
@@ -195,13 +192,13 @@ void CalculixDockWidget::on_openCalpre_clicked()
         QString out, err;
         bool ok = runCommandLine(cmd, &out, &err);
         if (ok) {
-            qDebug() << "Command executed successfully!";
+            qDebug() << "CalculixDockwidget Command executed successfully!";
         } else {
-            qWarning() << "fbl file open failed";
+            qWarning() << "CalculixDockwidget fbl file open failed";
         }
 
         QString mshPath = QFileInfo(prePath).absolutePath() + "/all.msh";
-        qDebug() << mshPath;
+        qDebug() << "CalculixDockwidget " << mshPath;
         emit showInpFile(mshPath);
     }
     else {
@@ -218,7 +215,7 @@ void CalculixDockWidget::on_calSolver_clicked()
         QString inpFilePath = QFileDialog::getOpenFileName(this, tr("选择inp文件"), "..", tr("inp文件(*.inp)"));
         QString inpName = inpFilePath.left(inpFilePath.lastIndexOf('.'));
         QString ccxCmd = calPath + "/bin/ccx_2.21 " + inpName;
-        qDebug() << ccxCmd;
+        qDebug() << "CalculixDockwidget  " << ccxCmd;
         runCommandWithProgress(this, ccxCmd);
     }
 }
@@ -237,7 +234,7 @@ void CalculixDockWidget::on_frd2vtu_clicked()
         QString qtPath = QDir::homePath() + "/FENGSim/toolkit/Tools/qt/5.12.12/lib";
         parts.removeAll(qtPath);
         env.insert("LD_LIBRARY_PATH", parts.join(QLatin1Char(':')));
-        qDebug() << "python3 " + frd2vtu + " " + frdFilePath + " vtu";
+        qDebug() << "CalculixDockwidget python3 " + frd2vtu + " " + frdFilePath + " vtu";
         QProcess p;
         p.setProcessEnvironment(env);
 
@@ -248,9 +245,9 @@ void CalculixDockWidget::on_frd2vtu_clicked()
         p.waitForFinished();
         QString output = p.readAllStandardOutput();
         QString error = p.readAllStandardError();
-        qDebug() << "输出:" << output.trimmed();
+        qDebug() << "CalculixDockwidget 输出:" << output.trimmed();
         if (!error.isEmpty())
-            qDebug() << "错误:" << error.trimmed();
+            qDebug() << "CalculixDockwidget 错误:" << error.trimmed();
         QMessageBox::information(this, "提示", "数据转换完成");
     }
 }
@@ -263,8 +260,9 @@ void CalculixDockWidget::on_calRes_clicked()
                 "..",
                 tr("vtu文件(*.vtu)"));
     if (!vtuPath.isEmpty()) {
-        qDebug() << "选中的vtu文件" << vtuPath;
+        qDebug() << "CalculixDockwidget 选中的vtu文件" << vtuPath;
         emit showVtuFile(vtuPath);
+        //ui->colorSelect->addItems(QStringList({"color1", "color2", "color3"}));
     } else {
         QMessageBox::warning(this, "警告", "请选择vtu文件");
     }
@@ -283,4 +281,15 @@ void CalculixDockWidget::on_playVtu_clicked()
         ui->playVtu->setText("播放");
         emit signalPlayPause(playing);
     }
+}
+
+void CalculixDockWidget::receiveVtuSclName(QStringList &vtuSclName)
+{
+    ui->colorSelect->clear();
+    ui->colorSelect->addItems(vtuSclName);
+}
+
+void CalculixDockWidget::on_colorSelect_currentIndexChanged(const QString &arg1)
+{
+    emit changeColors(arg1);
 }

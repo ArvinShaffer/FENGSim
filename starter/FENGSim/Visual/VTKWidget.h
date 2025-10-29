@@ -67,14 +67,14 @@ public:
     void ImportVtuFile(const QString& file);
     void vtuSetupEmptyScene();
     void updateVtuAnimation(double s);
-    QString getVectorArrayName() const;
-    QString getScalarArrayName() const;
+    void getVectorArrayName();
+    void getScalarArrayName();
     void applyColoring(const QString& scalarArrayName);
 
 
 
     void ImportVTKFileCloudColorFinal(double t=0.05);
-    // additive manufacturing
+    // additive manufacturingcName += arr->GetName();
     void ImportVTKFileAMStlModel (std::string name);
     void ImportVTKFileAMSlices (std::string name);
     void ImportVTKFileAMMesh (std::string name);
@@ -218,6 +218,8 @@ protected:
     virtual void mouseMoveEvent( QMouseEvent* );
     virtual void MouseMove(Qt::MouseButtons nFlags, const QPoint point );
     // virtual void wheelEvent( QWheelEvent* );
+
+
 private:
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<IVtkTools_ShapePicker> aPicker;
@@ -238,23 +240,8 @@ private:
     vtkSmartPointer<vtkWarpVector> vtuWarp;
     vtkSmartPointer<vtkDataSetMapper> vtuMapper;
     vtkSmartPointer<vtkActor> vtuActor;
-    QString vtuVecName;
-    QString vtuSclName;
     bool vtuAutoScalarRange = true;
     double vtuScalarMin = 0.0, vtuScalarMax = 1.0;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -263,7 +250,8 @@ private:
 public:
     std::vector<int> selected_bnd_id;
     void ClearSelectedBnd ();
-
+    QStringList vtuVecName;
+    QStringList vtuSclName;
 
 
 

@@ -423,6 +423,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(cal_dock, &CalculixDockWidget::showVtuFile, this, &MainWindow::ImportVtuFile);
     connect(vtuTimer, &QTimer::timeout, this, &MainWindow::vtuAnimationSlot);
     connect(cal_dock, &CalculixDockWidget::signalPlayPause, this, &MainWindow::slotPlayPause);
+    connect(this, &MainWindow::sendVtuSclName, cal_dock, &CalculixDockWidget::receiveVtuSclName);
+    connect(cal_dock, &CalculixDockWidget::changeColors, this, &MainWindow::setVtuColor);
 
     return;
 }
@@ -635,7 +637,8 @@ void MainWindow::ImportVtuFile(const QString &path)
 {
     vtk_widget->Clear();
     vtk_widget->ImportVtuFile(path);
-    //vtuTimer->start();
+    //qDebug() << "mainwindow: " << vtk_widget->vtuSclName;
+    emit sendVtuSclName(vtk_widget->vtuSclName);
 }
 
 void MainWindow::vtuAnimationSlot()
@@ -655,6 +658,11 @@ void MainWindow::slotPlayPause(bool playing)
         vtuTimer->stop();
         vtk_widget->updateVtuAnimation(vtuBaseScale);
     }
+}
+
+void MainWindow::setVtuColor(const QString &name)
+{
+    vtk_widget->applyColoring(name);
 }
 // ##############################################################################################
 // ##############################################################################################

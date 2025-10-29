@@ -31,6 +31,8 @@ public:
     explicit CalculixDockWidget(QWidget *parent = nullptr);
     ~CalculixDockWidget();
 
+public slots:
+    void receiveVtuSclName(QStringList &vtuSclName);
 
 private slots:
     void on_openCalpre_clicked();
@@ -51,6 +53,9 @@ private slots:
 
     void runCommandWithProgress(QWidget *parent, const QString &command);
 
+    void on_colorSelect_currentIndexChanged(const QString &arg1);
+
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
@@ -70,6 +75,7 @@ signals:
     void showInpFile(const QString &filePath);
     void showVtuFile(const QString &filePath);
     void signalPlayPause(bool playing);
+    void changeColors(const QString &name);
 
 };
 

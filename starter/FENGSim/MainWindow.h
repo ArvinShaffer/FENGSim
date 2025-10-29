@@ -378,8 +378,10 @@ public slots:
     void ImportVtuFile(const QString &path);
     void vtuAnimationSlot();
     void slotPlayPause(bool playing);
+    void setVtuColor(const QString &name);
 
-
+signals:
+    void sendVtuSclName(QStringList &vtuSclName);
 
 
 
