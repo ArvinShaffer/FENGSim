@@ -878,7 +878,7 @@ void VTKWidget::ImportVtuFile(const QString& file)
 
     getVectorArrayName();
     getScalarArrayName();
-    qDebug() << "vtuVecName: " << vtuVecName << " vtuSclName: " << vtuSclName;
+    qDebug() << "VTKWidget  vtuVecName: " << vtuVecName << " vtuSclName: " << vtuSclName;
 
     vtuWarp = vtkSmartPointer<vtkWarpVector>::New();
     vtuWarp->SetScaleFactor(0.0);
