@@ -25,10 +25,10 @@
      <x>0</x>
      <y>0</y>
      <width>236</width>
-     <height>306</height>
+     <height>332</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
     <property name="sizeConstraint">
      <enum>QLayout::SetNoConstraint</enum>
     </property>
@@ -203,7 +203,7 @@
       <item>
        <widget class="QLabel" name="label_10">
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -219,19 +219,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="horizontalSlider">
+       <widget class="QDoubleSpinBox" name="scale">
         <property name="maximum">
-         <number>200</number>
+         <double>100000.000000000000000</double>
         </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>0.50</string>
+        <property name="singleStep">
+         <double>10.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -261,7 +254,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>频率(Hz):</string>
+         <string>速度(步/秒):</string>
         </property>
        </widget>
       </item>
@@ -286,6 +279,13 @@
        </spacer>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

@@ -425,6 +425,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(cal_dock, &CalculixDockWidget::signalPlayPause, this, &MainWindow::slotPlayPause);
     connect(this, &MainWindow::sendVtuSclName, cal_dock, &CalculixDockWidget::receiveVtuSclName);
     connect(cal_dock, &CalculixDockWidget::changeColors, this, &MainWindow::setVtuColor);
+    connect(cal_dock, &CalculixDockWidget::changeScale, this, &MainWindow::setVtuScale);
 
     return;
 }
@@ -615,9 +616,6 @@ void MainWindow::OpenCalculix()
 
         vtk_widget->SetSelectable(true);
         vtk_widget->SetSelectDomain(true);
-        //ui->dockWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        //ui->dockWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        //ui->dockWidget->update();
         ui->dockWidget->setWidget(cal_dock);
         ui->dockWidget->show();
     }
@@ -643,26 +641,31 @@ void MainWindow::ImportVtuFile(const QString &path)
 
 void MainWindow::vtuAnimationSlot()
 {
-    vtutimeSec += vtuTimer->interval() / 1000.0;
-    const double s = vtuBaseScale * std::sin(2.0 * 3.1415926 * vtuHz * vtutimeSec);
+    //vtutimeSec += vtuTimer->interval() / 1000.0;
+    //const double s = vtuBaseScale * std::sin(2.0 * 3.1415926 * vtuHz * vtutimeSec);
     //qDebug() << "vtutimeSce: " << vtutimeSec << " s: " << s ;
-    vtk_widget->updateVtuAnimation(s);
+    //vtk_widget->updateVtuAnimation(vtuBaseScale);
 }
 
 void MainWindow::slotPlayPause(bool playing)
 {
     if(playing) {
-        vtutimeSec = 0.0;
-        vtuTimer->start();
+        //vtutimeSec = 0.0;
+        //vtuTimer->start();
     } else {
-        vtuTimer->stop();
-        vtk_widget->updateVtuAnimation(vtuBaseScale);
+        //vtuTimer->stop();
+        //vtk_widget->updateVtuAnimation(vtuBaseScale);
     }
 }
 
 void MainWindow::setVtuColor(const QString &name)
 {
     vtk_widget->applyColoring(name);
+}
+
+void MainWindow::setVtuScale(double s)
+{
+    vtk_widget->updateVtuAnimation(s);
 }
 // ##############################################################################################
 // ##############################################################################################

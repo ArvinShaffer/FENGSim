@@ -370,7 +370,7 @@ public slots:
 private:
     QTimer *vtuTimer = new QTimer;
     bool vtuPlaying{false};
-    double vtuBaseScale{0.05};
+    double vtuBaseScale{100000};
     double vtuHz{1.0};
     double vtutimeSec{0.0};
 public slots:
@@ -379,6 +379,7 @@ public slots:
     void vtuAnimationSlot();
     void slotPlayPause(bool playing);
     void setVtuColor(const QString &name);
+    void setVtuScale(double s);
 
 signals:
     void sendVtuSclName(QStringList &vtuSclName);

@@ -798,6 +798,7 @@ void VTKWidget::ImportCalInpFile(std::string str)
 
 void VTKWidget::getVectorArrayName()
 {
+    vtuVecName.clear();
     auto* pd = vtuug->GetPointData();
     // 再找任意 3 分量数组
     for (int i=0; i < pd->GetNumberOfArrays(); ++i){
@@ -810,6 +811,7 @@ void VTKWidget::getVectorArrayName()
 
 void VTKWidget::getScalarArrayName()
 {
+    vtuSclName.clear();
     auto* pd = vtuug->GetPointData();
     // 任意 1 分量数组
     for (int i=0; i < pd->GetNumberOfArrays(); ++i){

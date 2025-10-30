@@ -293,3 +293,8 @@ void CalculixDockWidget::on_colorSelect_currentIndexChanged(const QString &arg1)
 {
     emit changeColors(arg1);
 }
+
+void CalculixDockWidget::on_scale_valueChanged(double arg1)
+{
+    emit changeScale(arg1);
+}

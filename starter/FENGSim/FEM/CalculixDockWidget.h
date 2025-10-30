@@ -56,6 +56,8 @@ private slots:
     void on_colorSelect_currentIndexChanged(const QString &arg1);
 
 
+    void on_scale_valueChanged(double arg1);
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
@@ -76,6 +78,7 @@ signals:
     void showVtuFile(const QString &filePath);
     void signalPlayPause(bool playing);
     void changeColors(const QString &name);
+    void changeScale(double scale);
 
 };
 
