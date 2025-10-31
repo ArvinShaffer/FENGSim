@@ -165,10 +165,12 @@ void CalculixDockWidget::on_calPath_clicked()
 void CalculixDockWidget::ensureCgxAllowSys()
 {
     QString path = QDir::homePath() + "/.cgx";
-    QFile f(path);
-    if (f.open(QIODevice::Append | QIODevice::Text)) {
-        QTextStream ts(&f);
-        ts << "ALLOW_SYS\n";
+    if (!QFile::exists(path)) {
+        QFile f(path);
+        if (f.open(QIODevice::Append | QIODevice::Text)) {
+            QTextStream ts(&f);
+            ts << "ALLOW_SYS\n";
+        }
     }
 }
 
@@ -271,16 +273,8 @@ void CalculixDockWidget::on_calRes_clicked()
 
 void CalculixDockWidget::on_playVtu_clicked()
 {
-    playing = !playing;
-    if (playing)
-    {
-        ui->playVtu->setText("暂停");
-        emit signalPlayPause(playing);
-
-    } else {
-        ui->playVtu->setText("播放");
-        emit signalPlayPause(playing);
-    }
+    playing = true;
+    emit signalPlayPause(playing);
 }
 
 void CalculixDockWidget::receiveVtuSclName(QStringList &vtuSclName)
