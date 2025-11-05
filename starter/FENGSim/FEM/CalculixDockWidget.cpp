@@ -256,26 +256,20 @@ void CalculixDockWidget::on_frd2vtu_clicked()
 
 void CalculixDockWidget::on_calRes_clicked()
 {
-    QString vtuPath = QFileDialog::getOpenFileName(
-                this,
-                tr("选择vtu文件"),
-                "..",
-                tr("vtu文件(*.vtu)"));
+//    QStringList vtuPath = QFileDialog::getOpenFileName(
+//                this,
+//                tr("选择vtu文件"),
+//                "..",
+//                tr("vtu文件(*.vtu)"));
+    QStringList vtuPath = QFileDialog::getOpenFileNames(this, "选择多个 .vtu", "..", "VTU (*.vtu)");
     if (!vtuPath.isEmpty()) {
-        qDebug() << "CalculixDockwidget 选中的vtu文件" << vtuPath;
+        //qDebug() << "CalculixDockwidget 选中的vtu文件" << vtuPath;
         emit showVtuFile(vtuPath);
-        //ui->colorSelect->addItems(QStringList({"color1", "color2", "color3"}));
     } else {
         QMessageBox::warning(this, "警告", "请选择vtu文件");
     }
 }
 
-
-void CalculixDockWidget::on_playVtu_clicked()
-{
-    playing = true;
-    emit signalPlayPause(playing);
-}
 
 void CalculixDockWidget::receiveVtuSclName(QStringList &vtuSclName)
 {
@@ -292,3 +286,4 @@ void CalculixDockWidget::on_scale_valueChanged(double arg1)
 {
     emit changeScale(arg1);
 }
+

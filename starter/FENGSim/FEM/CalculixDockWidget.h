@@ -34,6 +34,8 @@ public:
 public slots:
     void receiveVtuSclName(QStringList &vtuSclName);
 
+
+
 private slots:
     void on_openCalpre_clicked();
 
@@ -45,8 +47,6 @@ private slots:
 
     void on_frd2vtu_clicked();
 
-    void on_playVtu_clicked();
-
     void ensureCgxAllowSys();
 
     bool runCommandLine(const QString &command, QString *stdOut = nullptr, QString *stdErr = nullptr);
@@ -54,7 +54,6 @@ private slots:
     void runCommandWithProgress(QWidget *parent, const QString &command);
 
     void on_colorSelect_currentIndexChanged(const QString &arg1);
-
 
     void on_scale_valueChanged(double arg1);
 
@@ -64,18 +63,11 @@ private:
     QString workPath;
     QString frd2vtu;
     QProcess process;
-    //QTimer timer;
-
-    // 状态
-    bool   playing{false};
-    double baseScale{0.3};  // 滑条 0~0.5 的工程单位
-    double freqHz{1.0};
-    double timeSec{0.0};
 
 
 signals:
     void showInpFile(const QString &filePath);
-    void showVtuFile(const QString &filePath);
+    void showVtuFile(const QStringList &filesList);
     void signalPlayPause(bool playing);
     void changeColors(const QString &name);
     void changeScale(double scale);

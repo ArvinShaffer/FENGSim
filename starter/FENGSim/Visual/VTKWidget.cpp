@@ -15,6 +15,7 @@ VTK_MODULE_INIT(vtkRenderingFreeType)
 #include "IVtkOCC_SelectableObject.hxx"
 #include "IVtkTools_ShapeObject.hxx"
 #include <QGraphicsView>
+#include <QFileInfo>
 
 #include <vtkSmartPointer.h>
 #include <vtkSimplePointsReader.h>
@@ -772,7 +773,9 @@ void VTKWidget::ImportVTKFile(std::string name, int type, int n)
     GetRenderWindow()->Render();
 }
 
+// -------------------------calculix-------------------------------
 #include <QDebug>
+#include <QMessageBox>
 void VTKWidget::ImportCalInpFile(std::string str)
 {
     //std::cout << "importcalinpfile   " << str << std::endl;
@@ -865,41 +868,91 @@ void VTKWidget::applyColoring(const QString& scalarArrayName)
     }
 }
 
-void VTKWidget::ImportVtuFile(const QString& file)
+void VTKWidget::clearPipeline()
 {
-    qDebug() << "vtkwidget vtu file path: " << file;
-    vtuReader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-    vtuReader->SetFileName(file.toUtf8().constData());
+    if (vtuActor) {
+        renderer->RemoveActor(vtuActor);
+    }
+    vtuReader = nullptr;
+    vtuug = nullptr;
+    vtuActor = nullptr;
+    vtuMapper = nullptr;
+    geomFilter = nullptr;
+}
+
+void VTKWidget::setStep(int i)
+{
+    if (vtuFiles.isEmpty() || !vtuReader)
+        return;
+    currStep = std::clamp(i, 0, vtuFiles.size() - 1);
+    vtuReader->SetFileName(vtuFiles[currStep].toUtf8().constData());
     vtuReader->Update();
     vtuug = vtuReader->GetOutput();
-    if (!vtuug || vtuug->GetNumberOfPoints() == 0) {
-        qDebug() << "读取vtu文件失败" ;
-    }
 
-    getVectorArrayName();
-    getScalarArrayName();
-    qDebug() << "VTKWidget  vtuVecName: " << vtuVecName << " vtuSclName: " << vtuSclName;
+    auto printAttrs = [&](const char* tag, vtkDataSet* ds){
+        if (!ds) { qDebug() << tag << " = <null>"; return; }
+        auto* pd = ds->GetPointData();
+        auto* cd = ds->GetCellData();
+        qDebug() << tag << " PD arrays:" << (pd ? pd->GetNumberOfArrays() : -1)
+                 << " CD arrays:" << (cd ? cd->GetNumberOfArrays() : -1);
+        if (pd) for (int i=0;i<pd->GetNumberOfArrays();++i)
+            qDebug() << "  PD["<<i<<"]" << pd->GetArrayName(i)
+                     << " comps=" << (pd->GetArray(i)?pd->GetArray(i)->GetNumberOfComponents():-1);
+        if (cd) for (int i=0;i<cd->GetNumberOfArrays();++i)
+            qDebug() << "  CD["<<i<<"]" << cd->GetArrayName(i)
+                     << " comps=" << (cd->GetArray(i)?cd->GetArray(i)->GetNumberOfComponents():-1);
+    };
 
-    vtuWarp = vtkSmartPointer<vtkWarpVector>::New();
-    vtuWarp->SetScaleFactor(0.0);
+    printAttrs("Reader out", vtuReader->GetOutput());     // vtkUnstructuredGrid
+    refreshArrayList();
     vtuWarp->SetInputData(vtuug);
     if (vtuVecName.isEmpty()) {
-        vtuVecName.append("U");
+            vtuVecName.append("U");
     }
     vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtuVecName[0].toUtf8().constData());
     vtuWarp->Update();
+    printAttrs("wrap out", vtuWarp->GetOutput());
 
+    if (!vtuSclName.isEmpty()) {
+        applyColoring(vtuSclName.first());
+    }
+
+    qDebug() << "vtkwidget vtusclname: " << vtuSclName;
+    qDebug() << "vtkwidget vtuvecname: " << vtuVecName;
+
+    GetRenderWindow()->Render();
+}
+
+void VTKWidget::ImportVtuFile(const QStringList& files)
+{
+    vtuFiles = files;
+    std::sort(vtuFiles.begin(), vtuFiles.end(), [](const QString& a, const QString& b){
+        return QFileInfo(a).fileName().compare(QFileInfo(b).fileName(), Qt::CaseInsensitive) < 0;
+    });
+
+    if (vtuFiles.isEmpty()) {
+        QMessageBox::warning(this, "警告", "未选择vtu文件");
+        return;
+    }
+
+    clearPipeline();
+    vtuReader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    //geomFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+    vtuug = vtkSmartPointer<vtkUnstructuredGrid>::New();
     vtuMapper = vtkSmartPointer<vtkDataSetMapper>::New();
-    vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
-
     vtuActor = vtkSmartPointer<vtkActor>::New();
-    vtuActor->SetMapper(vtuMapper);
+    vtuWarp = vtkSmartPointer<vtkWarpVector>::New();
 
+    //vtuug = vtuReader->GetOutput();
+    vtuWarp->SetInputData(vtuug);
+    vtuWarp->SetScaleFactor(0.0);
+    vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
+    vtuMapper->ScalarVisibilityOff();
+    vtuActor->SetMapper(vtuMapper);
     renderer->AddActor(vtuActor);
 
-    QString test = "S";
-    applyColoring(test);
-
+    currStep = 0;
+    setStep(0);
     renderer->ResetCamera();
     GetRenderWindow()->Render();
 }
@@ -907,10 +960,35 @@ void VTKWidget::ImportVtuFile(const QString& file)
 void VTKWidget::updateVtuAnimation(double s)
 {
     vtuWarp->SetScaleFactor(s);
-    vtuWarp->Update();
+    //vtuWarp->Update();
     GetRenderWindow()->Render();
 }
 
+void VTKWidget::refreshArrayList()
+{
+    vtuVecName.clear();
+    vtuSclName.clear();
+    if (!vtuug) return;
+    auto* pd = vtuug->GetPointData();
+    if (pd) {
+        for (int i = 0; i < pd->GetNumberOfArrays(); ++i) {
+            auto* arr = pd->GetArray(i);
+            if (arr && arr->GetName()) {
+                vtuSclName.append(arr->GetName());
+                if (arr->GetNumberOfComponents() == 3) {
+                    vtuVecName.append(arr->GetName());
+                }
+            }
+        }
+    }
+
+}
+
+
+
+
+
+// ------------------------------------------------------------
 void VTKWidget::Fit()
 {
     renderer->ResetCamera();

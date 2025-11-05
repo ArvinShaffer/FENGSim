@@ -32,6 +32,7 @@
 #include "vtkDataSetMapper.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
+#include "vtkGeometryFilter.h"
 
 class VTKWidget : public QVTKOpenGLWidget
 {
@@ -62,17 +63,6 @@ public:
     void Reset ();
     void Clear ();
     void ImportVTKFile (std::string name, int type=0, int n=0);
-
-    void ImportCalInpFile(std::string str);
-    void ImportVtuFile(const QString& file);
-    void vtuSetupEmptyScene();
-    void updateVtuAnimation(double s);
-    void getVectorArrayName();
-    void getScalarArrayName();
-    void applyColoring(const QString& scalarArrayName);
-
-
-
     void ImportVTKFileCloudColorFinal(double t=0.05);
     // additive manufacturingcName += arr->GetName();
     void ImportVTKFileAMStlModel (std::string name);
@@ -235,13 +225,37 @@ private:
     PhysicsDockWidget* phy_dw;
 
     //vtkSmartPointer<vtkRenderer> vtuRenderer;
+
+
+    // *******************************************************
+    // calculix
+public:
+    void ImportCalInpFile(std::string str);
+    void ImportVtuFile(const QStringList& file);
+    void vtuSetupEmptyScene();
+    void updateVtuAnimation(double s);
+    void getVectorArrayName();
+    void getScalarArrayName();
+    void applyColoring(const QString& scalarArrayName);
+    void clearPipeline();
+    void setStep(int i);
+    void refreshArrayList();  // 更新数组vtuVecName, vtuScalName
+
+    QStringList vtuVecName;
+    QStringList vtuSclName;
+    QStringList vtuFiles;
+    int currStep;
+
+private:
     vtkSmartPointer<vtkXMLUnstructuredGridReader> vtuReader;
+    vtkSmartPointer<vtkGeometryFilter> geomFilter;
     vtkSmartPointer<vtkUnstructuredGrid> vtuug;
     vtkSmartPointer<vtkWarpVector> vtuWarp;
     vtkSmartPointer<vtkDataSetMapper> vtuMapper;
     vtkSmartPointer<vtkActor> vtuActor;
     bool vtuAutoScalarRange = true;
     double vtuScalarMin = 0.0, vtuScalarMax = 1.0;
+    bool usePointData = true;              // true: PointData, false: CellData
 
 
 
@@ -250,8 +264,7 @@ private:
 public:
     std::vector<int> selected_bnd_id;
     void ClearSelectedBnd ();
-    QStringList vtuVecName;
-    QStringList vtuSclName;
+
 
 
 

@@ -373,9 +373,10 @@ private:
     double vtuBaseScale{100000};
     double vtuHz{1.0};
     double vtutimeSec{0.0};
+
 public slots:
     void ImportCalInpFile(const QString &path);
-    void ImportVtuFile(const QString &path);
+    void ImportVtuFile(const QStringList &path);
     void vtuAnimationSlot();
     void slotPlayPause(bool playing);
     void setVtuColor(const QString &name);

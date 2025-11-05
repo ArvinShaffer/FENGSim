@@ -631,11 +631,10 @@ void MainWindow::ImportCalInpFile(const QString &str)
     vtk_widget->ImportCalInpFile(str.toStdString());
 }
 
-void MainWindow::ImportVtuFile(const QString &path)
+void MainWindow::ImportVtuFile(const QStringList &path)
 {
     vtk_widget->Clear();
     vtk_widget->ImportVtuFile(path);
-    //qDebug() << "mainwindow: " << vtk_widget->vtuSclName;
     emit sendVtuSclName(vtk_widget->vtuSclName);
 }
 
@@ -667,6 +666,10 @@ void MainWindow::setVtuScale(double s)
 {
     vtk_widget->updateVtuAnimation(s);
 }
+
+
+
+
 // ##############################################################################################
 // ##############################################################################################
 // ##############################################################################################
