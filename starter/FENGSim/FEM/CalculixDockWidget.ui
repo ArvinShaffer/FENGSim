@@ -25,7 +25,7 @@
      <x>0</x>
      <y>0</y>
      <width>231</width>
-     <height>401</height>
+     <height>411</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0">
@@ -533,6 +533,9 @@
         </property>
         <property name="maximum">
          <double>50.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
         </property>
        </widget>
       </item>

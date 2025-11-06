@@ -913,6 +913,13 @@ void VTKWidget::setStep(int i)
     vtuWarp->Update();
     //printAttrs("wrap out", vtuWarp->GetOutput());
 
+    //vtuActor->GetProperty()->SetRepresentationToWireframe();
+    //vtuActor->GetProperty()->SetLineWidth(1.5);
+    vtuActor->GetProperty()->SetRepresentationToSurface();
+    vtuActor->GetProperty()->EdgeVisibilityOn();
+    vtuActor->GetProperty()->SetEdgeColor(0.1, 0.1, 0.1);
+    vtuActor->GetProperty()->SetLineWidth(1.0);
+
     if (!vtuSclName.isEmpty()) {
         applyColoring(vtuSclName.first());
     }
