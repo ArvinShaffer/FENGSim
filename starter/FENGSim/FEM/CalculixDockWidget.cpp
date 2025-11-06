@@ -287,3 +287,28 @@ void CalculixDockWidget::on_scale_valueChanged(double arg1)
     emit changeScale(arg1);
 }
 
+
+void CalculixDockWidget::on_playVtu_clicked()
+{
+    ui->playVtu->setDisabled(true);
+    ui->pauseVtu->setDisabled(false);
+    emit signalPlayPause(true);
+}
+
+void CalculixDockWidget::on_pauseVtu_clicked()
+{
+    ui->playVtu->setDisabled(false);
+    ui->pauseVtu->setDisabled(true);
+    emit signalPlayPause(false);
+}
+
+void CalculixDockWidget::on_loopVtu_clicked()
+{
+    looping = !looping;
+    emit signalSetLoop(looping);
+}
+
+void CalculixDockWidget::on_vtuSpeed_valueChanged(double arg1)
+{
+    emit signalSetSpeed(arg1);
+}

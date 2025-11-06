@@ -417,8 +417,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(machining_dock2->ui->pushButton_16, SIGNAL(clicked(bool)), this, SLOT(Machining2ImportMPMResults()));
 
     // cal_dock
-    vtuTimer->setInterval(200);
-    //vtuTimer->start();
     connect(cal_dock, &CalculixDockWidget::showInpFile, this, &MainWindow::ImportCalInpFile);
     connect(cal_dock, &CalculixDockWidget::showVtuFile, this, &MainWindow::ImportVtuFile);
     connect(vtuTimer, &QTimer::timeout, this, &MainWindow::vtuAnimationSlot);
@@ -426,6 +424,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(this, &MainWindow::sendVtuSclName, cal_dock, &CalculixDockWidget::receiveVtuSclName);
     connect(cal_dock, &CalculixDockWidget::changeColors, this, &MainWindow::setVtuColor);
     connect(cal_dock, &CalculixDockWidget::changeScale, this, &MainWindow::setVtuScale);
+    connect(cal_dock, &CalculixDockWidget::signalSetSpeed, this, &MainWindow::setSpeed);
+    connect(cal_dock, &CalculixDockWidget::signalSetLoop, this, &MainWindow::setLoop);
+    setSpeed(speed);
 
     return;
 }
@@ -638,22 +639,37 @@ void MainWindow::ImportVtuFile(const QStringList &path)
     emit sendVtuSclName(vtk_widget->vtuSclName);
 }
 
+void MainWindow::setSpeed(double sps)
+{
+    speed = sps;
+    vtutimeSec = speed > 0.1 ? speed : 0.1;
+    int intervalMs = int(1000.0 / vtutimeSec);
+    intervalMs = intervalMs > 1 ? intervalMs : 1;
+    vtuTimer->setInterval(intervalMs);
+}
+
 void MainWindow::vtuAnimationSlot()
 {
-    //vtutimeSec += vtuTimer->interval() / 1000.0;
-    //const double s = vtuBaseScale * std::sin(2.0 * 3.1415926 * vtuHz * vtutimeSec);
-    //qDebug() << "vtutimeSce: " << vtutimeSec << " s: " << s ;
-    //vtk_widget->updateVtuAnimation(vtuBaseScale);
+    if (vtk_widget->vtuFiles.isEmpty()) return;
+    int next = vtk_widget->currStep + 1;
+    if (next >= vtk_widget->vtuFiles.size()) {
+        if (!looping) {
+            slotPlayPause(false);
+            return ;
+        }
+        next = 0;
+    }
+    vtk_widget->setStep(next);
 }
 
 void MainWindow::slotPlayPause(bool playing)
 {
+    if (vtk_widget->vtuFiles.isEmpty()) return;
     if(playing) {
-        //vtutimeSec = 0.0;
-        //vtuTimer->start();
+        setSpeed(speed);
+        vtuTimer->start();
     } else {
-        //vtuTimer->stop();
-        //vtk_widget->updateVtuAnimation(vtuBaseScale);
+        vtuTimer->stop();
     }
 }
 
@@ -667,7 +683,10 @@ void MainWindow::setVtuScale(double s)
     vtk_widget->updateVtuAnimation(s);
 }
 
-
+void MainWindow::setLoop(bool on)
+{
+    looping = on;
+}
 
 
 // ##############################################################################################

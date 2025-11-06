@@ -903,7 +903,7 @@ void VTKWidget::setStep(int i)
                      << " comps=" << (cd->GetArray(i)?cd->GetArray(i)->GetNumberOfComponents():-1);
     };
 
-    printAttrs("Reader out", vtuReader->GetOutput());     // vtkUnstructuredGrid
+    //printAttrs("Reader out", vtuReader->GetOutput());     // vtkUnstructuredGrid
     refreshArrayList();
     vtuWarp->SetInputData(vtuug);
     if (vtuVecName.isEmpty()) {
@@ -911,15 +911,11 @@ void VTKWidget::setStep(int i)
     }
     vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtuVecName[0].toUtf8().constData());
     vtuWarp->Update();
-    printAttrs("wrap out", vtuWarp->GetOutput());
+    //printAttrs("wrap out", vtuWarp->GetOutput());
 
     if (!vtuSclName.isEmpty()) {
         applyColoring(vtuSclName.first());
     }
-
-    qDebug() << "vtkwidget vtusclname: " << vtuSclName;
-    qDebug() << "vtkwidget vtuvecname: " << vtuVecName;
-
     GetRenderWindow()->Render();
 }
 

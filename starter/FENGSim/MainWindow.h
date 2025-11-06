@@ -373,6 +373,8 @@ private:
     double vtuBaseScale{100000};
     double vtuHz{1.0};
     double vtutimeSec{0.0};
+    bool looping = false;
+    int speed = 1;
 
 public slots:
     void ImportCalInpFile(const QString &path);
@@ -381,6 +383,8 @@ public slots:
     void slotPlayPause(bool playing);
     void setVtuColor(const QString &name);
     void setVtuScale(double s);
+    void setSpeed(double sps);
+    void setLoop(bool on);
 
 signals:
     void sendVtuSclName(QStringList &vtuSclName);

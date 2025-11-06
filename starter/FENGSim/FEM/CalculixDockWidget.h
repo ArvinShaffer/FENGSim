@@ -57,12 +57,21 @@ private slots:
 
     void on_scale_valueChanged(double arg1);
 
+    void on_playVtu_clicked();
+
+    void on_pauseVtu_clicked();
+
+    void on_loopVtu_clicked();
+
+    void on_vtuSpeed_valueChanged(double arg1);
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
     QString workPath;
     QString frd2vtu;
     QProcess process;
+    bool looping = false;
 
 
 signals:
@@ -71,6 +80,8 @@ signals:
     void signalPlayPause(bool playing);
     void changeColors(const QString &name);
     void changeScale(double scale);
+    void signalSetSpeed(double sps);
+    void signalSetLoop(double on);
 
 };
 
