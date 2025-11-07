@@ -240,6 +240,8 @@ public:
     void clearPipeline();
     void setStep(int i);
     void refreshArrayList();  // 更新数组vtuVecName, vtuScalName
+    void mirrors(int xyz);
+    void viewOrigin();
 
     QStringList vtuVecName;
     QStringList vtuSclName;

@@ -9,6 +9,7 @@
 #include <vtkAutoInit.h>
 #include "vtkOrientationMarkerWidget.h"
 #include "vtkLight.h"
+#include "vtkTransform.h"
 VTK_MODULE_INIT(vtkRenderingOpenGL2);
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType)
@@ -888,7 +889,6 @@ void VTKWidget::setStep(int i)
     vtuReader->SetFileName(vtuFiles[currStep].toUtf8().constData());
     vtuReader->Update();
     vtuug = vtuReader->GetOutput();
-
     auto printAttrs = [&](const char* tag, vtkDataSet* ds){
         if (!ds) { qDebug() << tag << " = <null>"; return; }
         auto* pd = ds->GetPointData();
@@ -905,13 +905,14 @@ void VTKWidget::setStep(int i)
 
     //printAttrs("Reader out", vtuReader->GetOutput());     // vtkUnstructuredGrid
     refreshArrayList();
+
+    //mirrors(0);
     vtuWarp->SetInputData(vtuug);
     if (vtuVecName.isEmpty()) {
             vtuVecName.append("U");
     }
     vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtuVecName[0].toUtf8().constData());
     vtuWarp->Update();
-    //printAttrs("wrap out", vtuWarp->GetOutput());
 
     //vtuActor->GetProperty()->SetRepresentationToWireframe();
     //vtuActor->GetProperty()->SetLineWidth(1.5);
@@ -923,6 +924,8 @@ void VTKWidget::setStep(int i)
     if (!vtuSclName.isEmpty()) {
         applyColoring(vtuSclName.first());
     }
+    viewOrigin();
+
     GetRenderWindow()->Render();
 }
 
@@ -987,7 +990,55 @@ void VTKWidget::refreshArrayList()
 
 }
 
+#include <vtkTransformFilter.h>
+#include <vtkReverseSense.h>
+#include <vtkAppendFilter.h>
+#include <vtkDataSetSurfaceFilter.h>
+void VTKWidget::mirrors(int xyz)
+{
+    const char* dispName = vtuVecName[0].toUtf8().constData();
+    if (auto* arr = vtuug->GetPointData()->GetArray(dispName)) {
+        vtuug->GetPointData()->SetVectors(arr);
+    }
 
+    auto t = vtkSmartPointer<vtkTransform>::New();
+    t->Scale(1.0, 1.0, -1.0);
+
+    auto tf = vtkSmartPointer<vtkTransformFilter>::New();
+    tf->SetTransform(t);
+    tf->SetInputData(vtuug);
+    tf->Update();
+
+    auto app = vtkSmartPointer<vtkAppendFilter>::New();
+    app->AddInputData(vtuug);
+    app->AddInputConnection(tf->GetOutputPort());
+    app->Update();
+
+    vtuWarp->SetInputConnection(app->GetOutputPort());
+    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, dispName);
+    vtuWarp->Update();
+
+    auto surf = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+    surf->SetInputConnection(vtuWarp->GetOutputPort());
+
+    auto rev = vtkSmartPointer<vtkReverseSense>::New();
+    rev->SetInputConnection(surf->GetOutputPort());
+    rev->ReverseNormalsOn();
+
+    vtuMapper->SetInputConnection(rev->GetOutputPort());
+}
+
+void VTKWidget::viewOrigin()
+{
+    vtkSmartPointer<vtkAxesActor> worldAxes = vtkSmartPointer<vtkAxesActor>::New();
+    worldAxes->SetTotalLength(10.0, 10.0, 10.0); // 坐标轴长度
+    worldAxes->SetShaftTypeToCylinder();
+    worldAxes->SetCylinderRadius(0.02);
+    worldAxes->SetConeRadius(0.1);
+    worldAxes->SetSphereRadius(0.1);
+
+    renderer->AddActor(worldAxes);
+}
 
 
 
