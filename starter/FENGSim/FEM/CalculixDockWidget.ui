@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>680</height>
+    <width>378</width>
+    <height>805</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,8 +24,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>201</width>
-     <height>401</height>
+     <width>361</width>
+     <height>431</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0">
@@ -289,38 +289,47 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_11">
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QCheckBox" name="chkXY">
         <property name="font">
          <font>
           <pointsize>12</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>XY镜像</string>
+         <string>XY</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QCheckBox" name="chkXZ">
         <property name="font">
          <font>
           <pointsize>12</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>XZ镜像</string>
+         <string>XZ</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QCheckBox" name="chkYZ">
         <property name="font">
          <font>
           <pointsize>12</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>YZ镜像</string>
+         <string>YZ</string>
         </property>
        </widget>
       </item>

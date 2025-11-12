@@ -65,6 +65,7 @@ private slots:
 
     void on_vtuSpeed_valueChanged(double arg1);
 
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
@@ -82,6 +83,7 @@ signals:
     void changeScale(double scale);
     void signalSetSpeed(double sps);
     void signalSetLoop(double on);
+    void chkxyz(int xyz);
 
 };
 

@@ -33,6 +33,12 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkGeometryFilter.h"
+#include "vtkTransformFilter.h"
+#include "vtkReverseSense.h"
+#include "vtkAppendFilter.h"
+#include "vtkDataSetSurfaceFilter.h"
+
+
 
 class VTKWidget : public QVTKOpenGLWidget
 {
@@ -230,6 +236,13 @@ private:
     // *******************************************************
     // calculix
 public:
+    enum MirrorPlane {
+      MirrorNone = 0,
+      MirrorXY = 1 << 0,
+      MirrorXZ = 1 << 1,
+      MirrorYZ = 1 << 2
+    };
+
     void ImportCalInpFile(std::string str);
     void ImportVtuFile(const QStringList& file);
     void vtuSetupEmptyScene();
@@ -240,12 +253,14 @@ public:
     void clearPipeline();
     void setStep(int i);
     void refreshArrayList();  // 更新数组vtuVecName, vtuScalName
-    void mirrors(int xyz);
+    void setMirrorMask(int mask);
     void viewOrigin();
 
     QStringList vtuVecName;
     QStringList vtuSclName;
     QStringList vtuFiles;
+    QString currVecName;
+    QString currSclName;
     int currStep;
 
 private:
@@ -258,6 +273,17 @@ private:
     bool vtuAutoScalarRange = true;
     double vtuScalarMin = 0.0, vtuScalarMax = 1.0;
     bool usePointData = true;              // true: PointData, false: CellData
+
+    // mirrors
+    int mirrorMode = MirrorNone;
+    std::vector<MirrorPlane> mirrorOrder;
+    vtkSmartPointer<vtkUnstructuredGrid> mirroredDataCache;
+    vtkSmartPointer<vtkDataSetSurfaceFilter> mirrorSurfaceFilter;
+    vtkSmartPointer<vtkReverseSense> mirrorReverseFilter;
+    vtkAlgorithm* mapperFinalAlgorithm = nullptr;
+
+    void rebuildPipeline();
+
 
 
 

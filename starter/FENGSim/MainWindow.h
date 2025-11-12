@@ -385,6 +385,8 @@ public slots:
     void setVtuScale(double s);
     void setSpeed(double sps);
     void setLoop(bool on);
+    void chkXYZ(int xyz);
+
 
 signals:
     void sendVtuSclName(QStringList &vtuSclName);

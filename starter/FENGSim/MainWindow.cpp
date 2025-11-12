@@ -428,6 +428,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(cal_dock, &CalculixDockWidget::signalSetLoop, this, &MainWindow::setLoop);
     setSpeed(speed);
 
+
+    // 镜像设置
+    connect(cal_dock, &CalculixDockWidget::chkxyz, this, &MainWindow::chkXYZ);
+
+
     return;
 }
 
@@ -473,6 +478,7 @@ void MainWindow::SetActionChecked (int n) {
     else if (n == 3)
         ui->actionSolver->setChecked(true);
     else if (n == 4)
+
         ui->actionVisual->setChecked(true);
     else if (n == 5)
         ui->actionCalculix->setChecked(true);
@@ -675,6 +681,7 @@ void MainWindow::slotPlayPause(bool playing)
 
 void MainWindow::setVtuColor(const QString &name)
 {
+    vtk_widget->currSclName = name;
     vtk_widget->applyColoring(name);
 }
 
@@ -687,6 +694,17 @@ void MainWindow::setLoop(bool on)
 {
     looping = on;
 }
+
+void MainWindow::chkXYZ(int mask)
+{
+    vtk_widget->setMirrorMask(mask);
+}
+
+
+
+
+
+
 
 
 // ##############################################################################################

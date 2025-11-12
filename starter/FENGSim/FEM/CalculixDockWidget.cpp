@@ -7,6 +7,49 @@ CalculixDockWidget::CalculixDockWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->chkXY->setStyleSheet(R"(
+                             QCheckBox::indicator:unchecked {
+                                 border: 2px solid #888;
+                                 background-color: #fff;
+                                 border-radius: 4px;
+                             }
+                             QCheckBox::indicator:checked {
+                                 border: 2px solid #0078d7;
+                                 background-color: #0078d7;
+                             }
+                         )");
+    ui->chkXZ->setStyleSheet(R"(
+                             QCheckBox::indicator:unchecked {
+                                 border: 2px solid #888;
+                                 background-color: #fff;
+                                 border-radius: 4px;
+                             }
+                             QCheckBox::indicator:checked {
+                                 border: 2px solid #0078d7;
+                                 background-color: #0078d7;
+                             }
+                         )");
+    ui->chkYZ->setStyleSheet(R"(
+                             QCheckBox::indicator:unchecked {
+                                 border: 2px solid #888;
+                                 background-color: #fff;
+                                 border-radius: 4px;
+                             }
+                             QCheckBox::indicator:checked {
+                                 border: 2px solid #0078d7;
+                                 background-color: #0078d7;
+                             }
+                         )");
+    auto updateMirrorMask = [=] {
+        int mask = 0;
+        if (ui->chkXY->isChecked()) mask |= 1;
+        if (ui->chkXZ->isChecked()) mask |= 2;
+        if (ui->chkYZ->isChecked()) mask |= 4;
+        emit chkxyz(mask);
+    };
+    connect(ui->chkXY, &QCheckBox::toggled, this, [=](bool) { updateMirrorMask(); });
+    connect(ui->chkXZ, &QCheckBox::toggled, this, [=](bool) { updateMirrorMask(); });
+    connect(ui->chkYZ, &QCheckBox::toggled, this, [=](bool) { updateMirrorMask(); });
     ensureCgxAllowSys();
 }
 
@@ -312,3 +355,5 @@ void CalculixDockWidget::on_vtuSpeed_valueChanged(double arg1)
 {
     emit signalSetSpeed(arg1);
 }
+
+

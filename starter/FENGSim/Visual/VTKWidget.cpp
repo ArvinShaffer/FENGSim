@@ -1,6 +1,5 @@
 #include "VTKWidget.h"
 #include "vtkLookupTable.h"
-#include "vtkProperty.h"
 #include "vtkUnstructuredGridReader.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAlgorithm.h"
@@ -903,30 +902,8 @@ void VTKWidget::setStep(int i)
                      << " comps=" << (cd->GetArray(i)?cd->GetArray(i)->GetNumberOfComponents():-1);
     };
 
-    //printAttrs("Reader out", vtuReader->GetOutput());     // vtkUnstructuredGrid
     refreshArrayList();
-
-    //mirrors(0);
-    vtuWarp->SetInputData(vtuug);
-    if (vtuVecName.isEmpty()) {
-            vtuVecName.append("U");
-    }
-    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtuVecName[0].toUtf8().constData());
-    vtuWarp->Update();
-
-    //vtuActor->GetProperty()->SetRepresentationToWireframe();
-    //vtuActor->GetProperty()->SetLineWidth(1.5);
-    vtuActor->GetProperty()->SetRepresentationToSurface();
-    vtuActor->GetProperty()->EdgeVisibilityOn();
-    vtuActor->GetProperty()->SetEdgeColor(0.1, 0.1, 0.1);
-    vtuActor->GetProperty()->SetLineWidth(1.0);
-
-    if (!vtuSclName.isEmpty()) {
-        applyColoring(vtuSclName.first());
-    }
-    viewOrigin();
-
-    GetRenderWindow()->Render();
+    rebuildPipeline();
 }
 
 void VTKWidget::ImportVtuFile(const QStringList& files)
@@ -990,42 +967,132 @@ void VTKWidget::refreshArrayList()
 
 }
 
-#include <vtkTransformFilter.h>
-#include <vtkReverseSense.h>
-#include <vtkAppendFilter.h>
-#include <vtkDataSetSurfaceFilter.h>
-void VTKWidget::mirrors(int xyz)
+
+void VTKWidget::setMirrorMask(int mask)
 {
-    const char* dispName = vtuVecName[0].toUtf8().constData();
-    if (auto* arr = vtuug->GetPointData()->GetArray(dispName)) {
-        vtuug->GetPointData()->SetVectors(arr);
+    if (mask != mirrorMode) {
+        auto updateOrderForPlane = [&](MirrorPlane plane) {
+            const bool want = (mask & plane);
+            auto it = std::find(mirrorOrder.begin(), mirrorOrder.end(), plane);
+            if (want) {
+                if (it == mirrorOrder.end()) {
+                    mirrorOrder.push_back(plane);
+                }
+            } else if (it != mirrorOrder.end()) {
+                    mirrorOrder.erase(it);
+            }
+        };
+
+        updateOrderForPlane(MirrorXY);
+        updateOrderForPlane(MirrorXZ);
+        updateOrderForPlane(MirrorYZ);
+
+        mirrorMode = mask;
+        if (mirrorMode == MirrorNone) {
+            mirrorOrder.clear();
+        }
     }
 
-    auto t = vtkSmartPointer<vtkTransform>::New();
-    t->Scale(1.0, 1.0, -1.0);
+    rebuildPipeline();
+}
 
-    auto tf = vtkSmartPointer<vtkTransformFilter>::New();
-    tf->SetTransform(t);
-    tf->SetInputData(vtuug);
-    tf->Update();
+void VTKWidget::rebuildPipeline()
+{
+    if (!vtuug) return ;
 
-    auto app = vtkSmartPointer<vtkAppendFilter>::New();
-    app->AddInputData(vtuug);
-    app->AddInputConnection(tf->GetOutputPort());
-    app->Update();
+    mirrorSurfaceFilter = nullptr;
+    mirrorReverseFilter = nullptr;
+    mapperFinalAlgorithm = nullptr;
 
-    vtuWarp->SetInputConnection(app->GetOutputPort());
-    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, dispName);
+    if (mirrorMode != MirrorNone && mirrorOrder.empty() ) {
+        if (mirrorMode & MirrorXY) mirrorOrder.push_back(MirrorXY);
+        if (mirrorMode & MirrorXZ) mirrorOrder.push_back(MirrorXZ);
+        if (mirrorMode & MirrorYZ) mirrorOrder.push_back(MirrorYZ);
+    }
+
+    auto createTransform = [](MirrorPlane plane) {
+        auto t = vtkSmartPointer<vtkTransform>::New();
+        double sx = 1.0, sy = 1.0, sz = 1.0;
+        switch (plane) {
+        case MirrorXY: sz = -1.0; break;
+        case MirrorXZ: sy = -1.0; break;
+        case MirrorYZ: sx = -1.0; break;
+        default: break;
+        }
+        t->Scale(sx, sy, sz);
+        return t;
+    };
+
+    vtkSmartPointer<vtkUnstructuredGrid> dataForWarp = vtuug;
+
+    if (mirrorMode != MirrorNone && vtuug) {
+        auto workingData = vtkSmartPointer<vtkUnstructuredGrid>::New();
+        workingData->ShallowCopy(vtuug);
+
+        for (auto plane : mirrorOrder) {
+            auto currentData = workingData;
+
+            auto tf = vtkSmartPointer<vtkTransformFilter>::New();
+            tf->SetTransform(createTransform(plane));
+            tf->SetInputData(currentData);
+            tf->Update();
+
+            auto append = vtkSmartPointer<vtkAppendFilter>::New();
+            append->SetMergePoints(true);
+            append->AddInputData(currentData);
+            append->AddInputData(tf->GetOutput());
+            append->Update();
+
+            auto combined = vtkSmartPointer<vtkUnstructuredGrid>::New();
+            combined->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(append->GetOutput()));
+            workingData = combined;
+        }
+        dataForWarp = workingData;
+    }
+
+    mirroredDataCache = dataForWarp;
+    vtuWarp->SetInputData(mirroredDataCache);
+    mapperFinalAlgorithm = vtuWarp;
+
+    QString dispName = currSclName;
+    if (dispName.isEmpty()) {
+        dispName = vtuSclName.isEmpty() ? QStringLiteral("U") : vtuSclName.first();
+    }
+    const QByteArray dispNameBytes = dispName.toUtf8();
+    const char* dispNameC = dispNameBytes.constData();
+
+    vtkDataSet* vectorSource = mirroredDataCache ? static_cast<vtkDataSet*>(mirroredDataCache.GetPointer()) : static_cast<vtkDataSet*>(vtuug.GetPointer());
+    if (vectorSource && vectorSource->GetPointData()) {
+        if (auto* arr = vectorSource->GetPointData()->GetArray(dispNameC)) {
+            vectorSource->GetPointData()->SetVectors(arr);
+        }
+    }
+
+    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, dispNameC);
+    vtuWarp->Modified();
     vtuWarp->Update();
 
-    auto surf = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
-    surf->SetInputConnection(vtuWarp->GetOutputPort());
+    vtkAlgorithmOutput* mapperInput = vtuWarp->GetOutputPort();
+    if (mirrorMode != MirrorNone) {
+        mirrorSurfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+        mirrorSurfaceFilter->SetInputConnection(mapperInput);
+        mapperFinalAlgorithm = mirrorSurfaceFilter;
 
-    auto rev = vtkSmartPointer<vtkReverseSense>::New();
-    rev->SetInputConnection(surf->GetOutputPort());
-    rev->ReverseNormalsOn();
+        mirrorReverseFilter = vtkSmartPointer<vtkReverseSense>::New();
+        mirrorReverseFilter->SetInputConnection(mirrorSurfaceFilter->GetOutputPort());
+        mirrorReverseFilter->ReverseNormalsOn();
+        mapperInput = mirrorReverseFilter->GetOutputPort();
+        mapperFinalAlgorithm = mirrorReverseFilter;
+    }
 
-    vtuMapper->SetInputConnection(rev->GetOutputPort());
+    vtuMapper->SetInputConnection(mapperInput);
+    vtuMapper->Update();
+    vtuActor->SetMapper(vtuMapper);
+
+    if (!vtuVecName.isEmpty()) {
+        applyColoring(vtuSclName.first());
+    }
+    GetRenderWindow()->Render();
 }
 
 void VTKWidget::viewOrigin()
