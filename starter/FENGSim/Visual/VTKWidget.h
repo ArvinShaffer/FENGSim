@@ -265,11 +265,11 @@ public:
 
 private:
     vtkSmartPointer<vtkXMLUnstructuredGridReader> vtuReader;
-    vtkSmartPointer<vtkGeometryFilter> geomFilter;
-    vtkSmartPointer<vtkUnstructuredGrid> vtuug;
-    vtkSmartPointer<vtkWarpVector> vtuWarp;
-    vtkSmartPointer<vtkDataSetMapper> vtuMapper;
-    vtkSmartPointer<vtkActor> vtuActor;
+    vtkSmartPointer<vtkGeometryFilter>            geomFilter;
+    vtkSmartPointer<vtkUnstructuredGrid>          vtuug;
+    vtkSmartPointer<vtkWarpVector>                vtuWarp;
+    vtkSmartPointer<vtkDataSetMapper>             vtuMapper;
+    vtkSmartPointer<vtkActor>                     vtuActor;
     bool vtuAutoScalarRange = true;
     double vtuScalarMin = 0.0, vtuScalarMax = 1.0;
     bool usePointData = true;              // true: PointData, false: CellData

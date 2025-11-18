@@ -828,56 +828,123 @@ void VTKWidget::getScalarArrayName()
 
 void VTKWidget::applyColoring(const QString& scalarArrayName)
 {
-    // 如果给了标量名，用点数据字段；否则默认按标量关闭
-    if (!scalarArrayName.isEmpty()) {
-        vtuMapper->SetScalarModeToUsePointFieldData();
-        vtuMapper->SelectColorArray(scalarArrayName.toUtf8().constData());
-        vtuMapper->InterpolateScalarsBeforeMappingOn();
-
-        double rng[2] = {0, 1};
-        if (vtuAutoScalarRange) {
-            auto* arr = vtuug->GetPointData()->GetArray(scalarArrayName.toUtf8().constData());
-            if (arr) arr->GetRange(rng);
-        } else {
-            rng[0] = vtuScalarMin;
-            rng[1] = vtuScalarMax;
-        }
-
-        // ★ 自定义一个 “低值蓝，高值红” 的查色表
-        vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
-        lut->SetNumberOfTableValues(256);
-        // Hue: 蓝(≈0.667) -> 红(0.0)；S/V 保持 1.0 得到鲜艳色
-        lut->SetHueRange(0.667, 0.0);
-        lut->SetSaturationRange(1.0, 1.0);
-        lut->SetValueRange(1.0, 1.0);
-        lut->SetRange(rng);     // ★ 把数值范围设到 LUT 上
-        lut->Build();
-
-        // ★ 让 mapper 使用我们自己的 LUT，并使用 LUT 的范围
-        vtuMapper->SetLookupTable(lut);
-        vtuMapper->UseLookupTableScalarRangeOn();
-        vtuMapper->ScalarVisibilityOn();
-
-        // 颜色条
-        scalarBar->SetLookupTable(lut);
-        scalarBar->SetNumberOfLabels(5);
-        scalarBar->SetTitle(scalarArrayName.toUtf8().constData());
-        renderer->AddActor2D(scalarBar);
-    } else {
-        vtuMapper->ScalarVisibilityOff();
+    if (mapperFinalAlgorithm) {
+        mapperFinalAlgorithm->Update();
     }
+
+    vtuMapper->Update();
+
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(vtuMapper->GetInput());
+    if (!ds && mapperFinalAlgorithm) {
+        ds = vtkDataSet::SafeDownCast(mapperFinalAlgorithm->GetOutputDataObject(0));
+    }
+    if (!ds || scalarArrayName.isEmpty()) {
+        currSclName.clear();
+        vtuMapper->ScalarVisibilityOff();
+        GetRenderWindow()->Render();
+        return;
+    }
+
+    auto* pd = ds->GetPointData();
+    auto* cd = ds->GetCellData();
+    vtkDataArray* arr = nullptr;
+    bool usePointField = false;
+
+    if (pd && (arr = pd->GetArray(scalarArrayName.toUtf8().constData()))) {
+        usePointField = true;
+    } else if (cd && (arr = cd->GetArray(scalarArrayName.toUtf8().constData()))) {
+        usePointField = false;
+    } else {
+        currSclName.clear();
+        vtuMapper->ScalarVisibilityOff();
+        GetRenderWindow()->Render();
+        return;
+    }
+
+    // 范围
+    double rng[2] = {0.0, 1.0};
+    if (vtuAutoScalarRange) {
+        arr->GetRange(rng);
+        if (rng[0] == rng[1]) {
+            const double eps = (rng[0] == 0.0 ? 1.0 : std::abs(rng[0]) * 0.01);
+            rng[0] -= eps;
+            rng[1] += eps;
+        }
+    } else {
+        rng[0] = vtuScalarMin;
+        rng[1] = vtuScalarMax;
+        if (rng[0] == rng[1]) rng[1] = rng[0] + 1.0;
+    }
+
+    // LUT
+    auto lut = vtkSmartPointer<vtkLookupTable>::New();
+    lut->SetNumberOfTableValues(256);
+    lut->SetHueRange(0.667, 0.0);
+    lut->SetSaturationRange(1.0, 1.0);
+    lut->SetValueRange(1.0, 1.0);
+    lut->SetRange(rng);
+    lut->Build();
+
+    vtuMapper->ScalarVisibilityOn();
+    vtuMapper->SetColorModeToMapScalars();
+    if (usePointField) {
+        vtuMapper->SetScalarModeToUsePointFieldData();
+        vtuMapper->InterpolateScalarsBeforeMappingOn();
+    } else {
+        vtuMapper->SetScalarModeToUseCellFieldData();
+        vtuMapper->InterpolateScalarsBeforeMappingOff();
+    }
+    vtuMapper->SelectColorArray(scalarArrayName.toUtf8().constData());
+    vtuMapper->SetLookupTable(lut);
+    vtuMapper->UseLookupTableScalarRangeOn();
+
+    scalarBar->SetLookupTable(lut);
+    scalarBar->SetTitle(scalarArrayName.toUtf8().constData());
+    scalarBar->SetNumberOfLabels(5);
+    scalarBar->SetVisibility(true);
+
+    bool already = false;
+    auto *props = renderer->GetViewProps();
+    props->InitTraversal();
+    while (auto *p = props->GetNextProp()) {
+        if (p == scalarBar.GetPointer()) {
+            already = true;
+            break;
+        }
+    }
+    if (!already) renderer->AddActor2D(scalarBar);
+
+    GetRenderWindow()->Render();
 }
 
 void VTKWidget::clearPipeline()
 {
-    if (vtuActor) {
-        renderer->RemoveActor(vtuActor);
-    }
-    vtuReader = nullptr;
-    vtuug = nullptr;
-    vtuActor = nullptr;
-    vtuMapper = nullptr;
-    geomFilter = nullptr;
+    if (vtuActor) renderer->RemoveActor(vtuActor);
+    vtuReader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    vtuug     = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    vtuWarp   = vtkSmartPointer<vtkWarpVector>::New();
+    vtuMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    vtuActor  = vtkSmartPointer<vtkActor>::New();
+
+    // 重新搭空管线
+    vtuWarp->SetInputData(vtuug);
+    vtuWarp->SetScaleFactor(0.0);
+    vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
+    vtuMapper->ScalarVisibilityOff();
+    vtuActor->SetMapper(vtuMapper);
+
+    renderer->AddActor(vtuActor);
+
+    vtuVecName.clear();
+    vtuSclName.clear();
+    currSclName.clear();
+    currVecName.clear();
+    mirrorMode = MirrorNone;
+    mirrorOrder.clear();
+    mirroredDataCache = nullptr;
+    mirrorSurfaceFilter = nullptr;
+    mirrorReverseFilter = nullptr;
+    mapperFinalAlgorithm = nullptr;
 }
 
 void VTKWidget::setStep(int i)
@@ -901,7 +968,6 @@ void VTKWidget::setStep(int i)
             qDebug() << "  CD["<<i<<"]" << cd->GetArrayName(i)
                      << " comps=" << (cd->GetArray(i)?cd->GetArray(i)->GetNumberOfComponents():-1);
     };
-
     refreshArrayList();
     rebuildPipeline();
 }
@@ -919,21 +985,6 @@ void VTKWidget::ImportVtuFile(const QStringList& files)
     }
 
     clearPipeline();
-    vtuReader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-    //geomFilter = vtkSmartPointer<vtkGeometryFilter>::New();
-    vtuug = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    vtuMapper = vtkSmartPointer<vtkDataSetMapper>::New();
-    vtuActor = vtkSmartPointer<vtkActor>::New();
-    vtuWarp = vtkSmartPointer<vtkWarpVector>::New();
-
-    //vtuug = vtuReader->GetOutput();
-    vtuWarp->SetInputData(vtuug);
-    vtuWarp->SetScaleFactor(0.0);
-    vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
-    vtuMapper->ScalarVisibilityOff();
-    vtuActor->SetMapper(vtuMapper);
-    renderer->AddActor(vtuActor);
-
     currStep = 0;
     setStep(0);
     renderer->ResetCamera();
@@ -970,9 +1021,11 @@ void VTKWidget::refreshArrayList()
 
 void VTKWidget::setMirrorMask(int mask)
 {
-    if (mask != mirrorMode) {
+    int sanitized = std::max(0, mask);
+    sanitized &= (MirrorXY | MirrorXZ | MirrorYZ);
+    if (sanitized != mirrorMode) {
         auto updateOrderForPlane = [&](MirrorPlane plane) {
-            const bool want = (mask & plane);
+            const bool want = (sanitized & plane);
             auto it = std::find(mirrorOrder.begin(), mirrorOrder.end(), plane);
             if (want) {
                 if (it == mirrorOrder.end()) {
@@ -987,7 +1040,7 @@ void VTKWidget::setMirrorMask(int mask)
         updateOrderForPlane(MirrorXZ);
         updateOrderForPlane(MirrorYZ);
 
-        mirrorMode = mask;
+        mirrorMode = sanitized;
         if (mirrorMode == MirrorNone) {
             mirrorOrder.clear();
         }
@@ -1054,9 +1107,9 @@ void VTKWidget::rebuildPipeline()
     vtuWarp->SetInputData(mirroredDataCache);
     mapperFinalAlgorithm = vtuWarp;
 
-    QString dispName = currSclName;
+    QString dispName = currVecName;
     if (dispName.isEmpty()) {
-        dispName = vtuSclName.isEmpty() ? QStringLiteral("U") : vtuSclName.first();
+        dispName = vtuVecName.isEmpty() ? QStringLiteral("U") : vtuVecName.first();
     }
     const QByteArray dispNameBytes = dispName.toUtf8();
     const char* dispNameC = dispNameBytes.constData();
@@ -1089,8 +1142,8 @@ void VTKWidget::rebuildPipeline()
     vtuMapper->Update();
     vtuActor->SetMapper(vtuMapper);
 
-    if (!vtuVecName.isEmpty()) {
-        applyColoring(vtuSclName.first());
+    if (mapperFinalAlgorithm) {
+        mapperFinalAlgorithm->Update();
     }
     GetRenderWindow()->Render();
 }

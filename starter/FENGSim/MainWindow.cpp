@@ -681,6 +681,7 @@ void MainWindow::slotPlayPause(bool playing)
 
 void MainWindow::setVtuColor(const QString &name)
 {
+    if (vtk_widget->currSclName == name) return;
     vtk_widget->currSclName = name;
     vtk_widget->applyColoring(name);
 }
