@@ -61,10 +61,10 @@ private slots:
 
     void on_pauseVtu_clicked();
 
-    void on_loopVtu_clicked();
-
     void on_vtuSpeed_valueChanged(double arg1);
 
+
+    void on_chkLoop_stateChanged(int arg1);
 
 private:
     Ui::CalculixDockWidget *ui;

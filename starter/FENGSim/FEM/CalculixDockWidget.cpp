@@ -40,6 +40,17 @@ CalculixDockWidget::CalculixDockWidget(QWidget *parent) :
                                  background-color: #0078d7;
                              }
                          )");
+    ui->chkLoop->setStyleSheet(R"(
+                               QCheckBox::indicator:unchecked {
+                                   border: 2px solid #888;
+                                   background-color: #fff;
+                                   border-radius: 4px;
+                               }
+                               QCheckBox::indicator:checked {
+                                   border: 2px solid #0078d7;
+                                   background-color: #0078d7;
+                               }
+                           )");
     auto updateMirrorMask = [=] {
         int mask = 0;
         if (ui->chkXY->isChecked()) mask |= 1;
@@ -345,11 +356,6 @@ void CalculixDockWidget::on_pauseVtu_clicked()
     emit signalPlayPause(false);
 }
 
-void CalculixDockWidget::on_loopVtu_clicked()
-{
-    looping = !looping;
-    emit signalSetLoop(looping);
-}
 
 void CalculixDockWidget::on_vtuSpeed_valueChanged(double arg1)
 {
@@ -357,3 +363,13 @@ void CalculixDockWidget::on_vtuSpeed_valueChanged(double arg1)
 }
 
 
+
+void CalculixDockWidget::on_chkLoop_stateChanged(int arg1)
+{
+    if (arg1) {
+        looping = true;
+    } else {
+        looping = false;
+    }
+    emit signalSetLoop(looping);
+}
