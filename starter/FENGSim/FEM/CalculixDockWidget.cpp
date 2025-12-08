@@ -310,14 +310,8 @@ void CalculixDockWidget::on_frd2vtu_clicked()
 
 void CalculixDockWidget::on_calRes_clicked()
 {
-//    QStringList vtuPath = QFileDialog::getOpenFileName(
-//                this,
-//                tr("选择vtu文件"),
-//                "..",
-//                tr("vtu文件(*.vtu)"));
     QStringList vtuPath = QFileDialog::getOpenFileNames(this, "选择多个 .vtu", "..", "VTU (*.vtu)");
     if (!vtuPath.isEmpty()) {
-        //qDebug() << "CalculixDockwidget 选中的vtu文件" << vtuPath;
         emit showVtuFile(vtuPath);
     } else {
         QMessageBox::warning(this, "警告", "请选择vtu文件");

@@ -42,6 +42,7 @@ double COLOR10[3] = {255.0/255.0, 0.0/255.0, 0.0/255.0};
 
 VTKWidget::VTKWidget (QWidget *parent) : QVTKOpenGLWidget(parent)
 {
+    vtkObject::GlobalWarningDisplayOff();
     // qvtkopenglwidget is different with qvtkwidget,
     // it need to create a generic render window by user
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> wind = vtkGenericOpenGLRenderWindow::New();
@@ -181,6 +182,25 @@ VTKWidget::VTKWidget (QWidget *parent) : QVTKOpenGLWidget(parent)
     renderer->AddActor2D ( textActor );
     TextOutput();
 
+
+    // ******************************************************
+    // calculix
+    vtuReader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    vtuug     = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    vtuWarp   = vtkSmartPointer<vtkWarpVector>::New();
+    vtuMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    vtuActor  = vtkSmartPointer<vtkActor>::New();
+    vtuWarp->SetInputData(vtuug);
+    vtuWarp->SetScaleFactor(0.0);
+    vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
+    vtuMapper->ScalarVisibilityOff();
+    vtuActor->SetMapper(vtuMapper);
+    renderer->AddActor(vtuActor);
+
+    lut = vtkSmartPointer<vtkLookupTable>::New();
+    lut->SetNumberOfTableValues(256);
+    lut->SetHueRange(0.667, 0.0);
+    lut->SetSaturationRange(1.0, 1.0);
 }
 
 void VTKWidget::SetTextPosition()
@@ -826,6 +846,38 @@ void VTKWidget::getScalarArrayName()
     }
 }
 
+void VTKWidget::setRangeMinMax()
+{
+    if (vtuData.vtuFiles.isEmpty())
+        return ;
+    for(auto f : vtuData.vtuFiles) {
+        vtuReader->SetFileName(f.toUtf8().constData());
+        vtuReader->Update();
+        vtuug = vtuReader->GetOutput();
+        if (!vtuug) return ;
+        auto * pd = vtuug->GetPointData();
+        if (pd) {
+            for (int i = 0; i < pd->GetNumberOfArrays(); ++i) {
+                auto* arr = pd->GetArray(i);
+                if (!arr || !arr->GetName()) continue;
+                QString arrName = arr->GetName();
+
+                double rng[2] = {0.0, 0.0};
+                arr->GetRange(rng);
+                double curMin = rng[0];
+                double curMax = rng[1];
+                if (vtuData.rangeMin.contains(arrName)) {
+                    vtuData.rangeMin[arrName] = std::min(vtuData.rangeMin[arrName], curMin);
+                    vtuData.rangeMax[arrName] = std::max(vtuData.rangeMax[arrName], curMax);
+                } else {
+                    vtuData.rangeMin[arrName] = curMin;
+                    vtuData.rangeMax[arrName] = curMax;
+                }
+            }
+        }
+    }
+}
+
 void VTKWidget::applyColoring(const QString& scalarArrayName)
 {
     if (mapperFinalAlgorithm) {
@@ -934,61 +986,53 @@ void VTKWidget::clearPipeline()
     vtuActor->SetMapper(vtuMapper);
 
     renderer->AddActor(vtuActor);
-
-    vtuVecName.clear();
-    vtuSclName.clear();
-    currSclName.clear();
-    currVecName.clear();
-    mirrorMode = MirrorNone;
-    mirrorOrder.clear();
-    mirroredDataCache = nullptr;
-    mirrorSurfaceFilter = nullptr;
-    mirrorReverseFilter = nullptr;
-    mapperFinalAlgorithm = nullptr;
 }
 
 void VTKWidget::setStep(int i)
 {
-    if (vtuFiles.isEmpty() || !vtuReader)
-        return;
-    currStep = std::clamp(i, 0, vtuFiles.size() - 1);
-    vtuReader->SetFileName(vtuFiles[currStep].toUtf8().constData());
-    vtuReader->Update();
-    vtuug = vtuReader->GetOutput();
-    auto printAttrs = [&](const char* tag, vtkDataSet* ds){
-        if (!ds) { qDebug() << tag << " = <null>"; return; }
-        auto* pd = ds->GetPointData();
-        auto* cd = ds->GetCellData();
-        qDebug() << tag << " PD arrays:" << (pd ? pd->GetNumberOfArrays() : -1)
-                 << " CD arrays:" << (cd ? cd->GetNumberOfArrays() : -1);
-        if (pd) for (int i=0;i<pd->GetNumberOfArrays();++i)
-            qDebug() << "  PD["<<i<<"]" << pd->GetArrayName(i)
-                     << " comps=" << (pd->GetArray(i)?pd->GetArray(i)->GetNumberOfComponents():-1);
-        if (cd) for (int i=0;i<cd->GetNumberOfArrays();++i)
-            qDebug() << "  CD["<<i<<"]" << cd->GetArrayName(i)
-                     << " comps=" << (cd->GetArray(i)?cd->GetArray(i)->GetNumberOfComponents():-1);
-    };
-    refreshArrayList();
-    rebuildPipeline();
+//    if (vtuFiles.isEmpty() || !vtuReader)
+//        return;
+//    currStep = std::clamp(i, 0, vtuFiles.size() - 1);
+//    vtuReader->SetFileName(vtuFiles[currStep].toUtf8().constData());
+//    vtuReader->Update();
+//    vtuug = vtuReader->GetOutput();
+//    auto printAttrs = [&](const char* tag, vtkDataSet* ds){
+//        if (!ds) { qDebug() << tag << " = <null>"; return; }
+//        auto* pd = ds->GetPointData();
+//        auto* cd = ds->GetCellData();
+//        qDebug() << tag << " PD arrays:" << (pd ? pd->GetNumberOfArrays() : -1)
+//                 << " CD arrays:" << (cd ? cd->GetNumberOfArrays() : -1);
+//        if (pd) for (int i=0;i<pd->GetNumberOfArrays();++i)
+//            qDebug() << "  PD["<<i<<"]" << pd->GetArrayName(i)
+//                     << " comps=" << (pd->GetArray(i)?pd->GetArray(i)->GetNumberOfComponents():-1);
+//        if (cd) for (int i=0;i<cd->GetNumberOfArrays();++i)
+//            qDebug() << "  CD["<<i<<"]" << cd->GetArrayName(i)
+//                     << " comps=" << (cd->GetArray(i)?cd->GetArray(i)->GetNumberOfComponents():-1);
+//    };
+//    refreshArrayList();
+//    rebuildPipeline();
 }
 
 void VTKWidget::ImportVtuFile(const QStringList& files)
 {
-    vtuFiles = files;
-    std::sort(vtuFiles.begin(), vtuFiles.end(), [](const QString& a, const QString& b){
+    vtuData.vtuFiles = files;
+    std::sort(vtuData.vtuFiles.begin(), vtuData.vtuFiles.end(), [](const QString& a, const QString& b){
         return QFileInfo(a).fileName().compare(QFileInfo(b).fileName(), Qt::CaseInsensitive) < 0;
     });
 
-    if (vtuFiles.isEmpty()) {
+    if (vtuData.vtuFiles.isEmpty()) {
         QMessageBox::warning(this, "警告", "未选择vtu文件");
         return;
     }
 
-    clearPipeline();
-    currStep = 0;
-    setStep(0);
-    renderer->ResetCamera();
-    GetRenderWindow()->Render();
+    setRangeMinMax();
+//    LOGD << vtuData.rangeMax;
+//    LOGD << vtuData.rangeMin;
+//    clearPipeline();
+//    currStep = 0;
+//    setStep(0);
+//    renderer->ResetCamera();
+//    GetRenderWindow()->Render();
 }
 
 void VTKWidget::updateVtuAnimation(double s)

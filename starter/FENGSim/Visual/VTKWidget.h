@@ -37,7 +37,8 @@
 #include "vtkReverseSense.h"
 #include "vtkAppendFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
-
+#include "utils/caldata.h"
+#include "utils/Log.h"
 
 
 class VTKWidget : public QVTKOpenGLWidget
@@ -256,9 +257,11 @@ public:
     void setMirrorMask(int mask);
     void viewOrigin();
 
+    VtuData vtuData;
+
     QStringList vtuVecName;
     QStringList vtuSclName;
-    QStringList vtuFiles;
+    //QStringList vtuFiles;
     QString currVecName;
     QString currSclName;
     int currStep;
@@ -270,6 +273,8 @@ private:
     vtkSmartPointer<vtkWarpVector>                vtuWarp;
     vtkSmartPointer<vtkDataSetMapper>             vtuMapper;
     vtkSmartPointer<vtkActor>                     vtuActor;
+    vtkSmartPointer<vtkLookupTable>               lut;
+    void setRangeMinMax();
     bool vtuAutoScalarRange = true;
     double vtuScalarMin = 0.0, vtuScalarMax = 1.0;
     bool usePointData = true;              // true: PointData, false: CellData

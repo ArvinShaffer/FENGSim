@@ -112,7 +112,9 @@ HEADERS  += \
     Machining/MachiningThread2.h \
     Transport/TransportDockWidget.h \
     Rivet/RivetDockWidget.h  \
-    utils/IngReader.h
+    utils/IngReader.h  \
+    utils/caldata.h   \
+    utils/Log.h
 
 FORMS    += \
     CAD/PhysicsDockWidget.ui \

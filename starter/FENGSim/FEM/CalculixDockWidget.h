@@ -18,6 +18,8 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QPushButton>
+#include "utils/Log.h"
+#include "utils/caldata.h"
 
 namespace Ui {
 class CalculixDockWidget;
@@ -73,6 +75,7 @@ private:
     QString frd2vtu;
     QProcess process;
     bool looping = false;
+    PendingOptions pending;
 
 
 signals:

@@ -642,7 +642,7 @@ void MainWindow::ImportVtuFile(const QStringList &path)
 {
     vtk_widget->Clear();
     vtk_widget->ImportVtuFile(path);
-    emit sendVtuSclName(vtk_widget->vtuSclName);
+    //emit sendVtuSclName(vtk_widget->vtuSclName);
 }
 
 void MainWindow::setSpeed(double sps)
@@ -656,27 +656,27 @@ void MainWindow::setSpeed(double sps)
 
 void MainWindow::vtuAnimationSlot()
 {
-    if (vtk_widget->vtuFiles.isEmpty()) return;
-    int next = vtk_widget->currStep + 1;
-    if (next >= vtk_widget->vtuFiles.size()) {
-        if (!looping) {
-            slotPlayPause(false);
-            return ;
-        }
-        next = 0;
-    }
-    vtk_widget->setStep(next);
+//    if (vtk_widget->vtuFiles.isEmpty()) return;
+//    int next = vtk_widget->currStep + 1;
+//    if (next >= vtk_widget->vtuFiles.size()) {
+//        if (!looping) {
+//            slotPlayPause(false);
+//            return ;
+//        }
+//        next = 0;
+//    }
+//    vtk_widget->setStep(next);
 }
 
 void MainWindow::slotPlayPause(bool playing)
 {
-    if (vtk_widget->vtuFiles.isEmpty()) return;
-    if(playing) {
-        setSpeed(speed);
-        vtuTimer->start();
-    } else {
-        vtuTimer->stop();
-    }
+//    if (vtk_widget->vtuFiles.isEmpty()) return;
+//    if(playing) {
+//        setSpeed(speed);
+//        vtuTimer->start();
+//    } else {
+//        vtuTimer->stop();
+//    }
 }
 
 void MainWindow::setVtuColor(const QString &name)
