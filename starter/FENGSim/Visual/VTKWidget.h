@@ -37,6 +37,7 @@
 #include "vtkReverseSense.h"
 #include "vtkAppendFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkTextProperty.h"
 #include "utils/caldata.h"
 #include "utils/Log.h"
 
@@ -248,23 +249,22 @@ public:
     void ImportVtuFile(const QStringList& file);
     void vtuSetupEmptyScene();
     void updateVtuAnimation(double s);
-    void getVectorArrayName();
-    void getScalarArrayName();
     void applyColoring(const QString& scalarArrayName);
     void clearPipeline();
     void setStep(int i);
-    void refreshArrayList();  // 更新数组vtuVecName, vtuScalName
+    void refreshArrayList();
     void setMirrorMask(int mask);
     void viewOrigin();
+    void setScalarBar();
 
     VtuData vtuData;
 
-    QStringList vtuVecName;
-    QStringList vtuSclName;
-    //QStringList vtuFiles;
-    QString currVecName;
-    QString currSclName;
-    int currStep;
+//    QStringList vtuVecName;
+//    QStringList vtuSclName;
+//    QStringList vtuFiles;
+//    QString currVecName;
+//    QString currSclName;
+//    int currStep;
 
 private:
     vtkSmartPointer<vtkXMLUnstructuredGridReader> vtuReader;

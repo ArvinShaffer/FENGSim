@@ -819,32 +819,6 @@ void VTKWidget::ImportCalInpFile(std::string str)
     GetRenderWindow()->Render();
 }
 
-void VTKWidget::getVectorArrayName()
-{
-    vtuVecName.clear();
-    auto* pd = vtuug->GetPointData();
-    // 再找任意 3 分量数组
-    for (int i=0; i < pd->GetNumberOfArrays(); ++i){
-        auto* arr = pd->GetArray(i);
-        if (arr && arr->GetNumberOfComponents()==3) {
-            vtuVecName.append(arr->GetName());
-        }
-    }
-}
-
-void VTKWidget::getScalarArrayName()
-{
-    vtuSclName.clear();
-    auto* pd = vtuug->GetPointData();
-    // 任意 1 分量数组
-    for (int i=0; i < pd->GetNumberOfArrays(); ++i){
-        if (auto* arr = pd->GetArray(i)) {
-            if (arr->GetName()) {
-                vtuSclName.append(arr->GetName());
-            }
-        }
-    }
-}
 
 void VTKWidget::setRangeMinMax()
 {
@@ -880,93 +854,93 @@ void VTKWidget::setRangeMinMax()
 
 void VTKWidget::applyColoring(const QString& scalarArrayName)
 {
-    if (mapperFinalAlgorithm) {
-        mapperFinalAlgorithm->Update();
-    }
+//    if (mapperFinalAlgorithm) {
+//        mapperFinalAlgorithm->Update();
+//    }
 
-    vtuMapper->Update();
+//    vtuMapper->Update();
 
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(vtuMapper->GetInput());
-    if (!ds && mapperFinalAlgorithm) {
-        ds = vtkDataSet::SafeDownCast(mapperFinalAlgorithm->GetOutputDataObject(0));
-    }
-    if (!ds || scalarArrayName.isEmpty()) {
-        currSclName.clear();
-        vtuMapper->ScalarVisibilityOff();
-        GetRenderWindow()->Render();
-        return;
-    }
+//    vtkDataSet* ds = vtkDataSet::SafeDownCast(vtuMapper->GetInput());
+//    if (!ds && mapperFinalAlgorithm) {
+//        ds = vtkDataSet::SafeDownCast(mapperFinalAlgorithm->GetOutputDataObject(0));
+//    }
+//    if (!ds || scalarArrayName.isEmpty()) {
+//        currSclName.clear();
+//        vtuMapper->ScalarVisibilityOff();
+//        GetRenderWindow()->Render();
+//        return;
+//    }
 
-    auto* pd = ds->GetPointData();
-    auto* cd = ds->GetCellData();
-    vtkDataArray* arr = nullptr;
-    bool usePointField = false;
+//    auto* pd = ds->GetPointData();
+//    auto* cd = ds->GetCellData();
+//    vtkDataArray* arr = nullptr;
+//    bool usePointField = false;
 
-    if (pd && (arr = pd->GetArray(scalarArrayName.toUtf8().constData()))) {
-        usePointField = true;
-    } else if (cd && (arr = cd->GetArray(scalarArrayName.toUtf8().constData()))) {
-        usePointField = false;
-    } else {
-        currSclName.clear();
-        vtuMapper->ScalarVisibilityOff();
-        GetRenderWindow()->Render();
-        return;
-    }
+//    if (pd && (arr = pd->GetArray(scalarArrayName.toUtf8().constData()))) {
+//        usePointField = true;
+//    } else if (cd && (arr = cd->GetArray(scalarArrayName.toUtf8().constData()))) {
+//        usePointField = false;
+//    } else {
+//        currSclName.clear();
+//        vtuMapper->ScalarVisibilityOff();
+//        GetRenderWindow()->Render();
+//        return;
+//    }
 
-    // 范围
-    double rng[2] = {0.0, 1.0};
-    if (vtuAutoScalarRange) {
-        arr->GetRange(rng);
-        if (rng[0] == rng[1]) {
-            const double eps = (rng[0] == 0.0 ? 1.0 : std::abs(rng[0]) * 0.01);
-            rng[0] -= eps;
-            rng[1] += eps;
-        }
-    } else {
-        rng[0] = vtuScalarMin;
-        rng[1] = vtuScalarMax;
-        if (rng[0] == rng[1]) rng[1] = rng[0] + 1.0;
-    }
+//    // 范围
+//    double rng[2] = {0.0, 1.0};
+//    if (vtuAutoScalarRange) {
+//        arr->GetRange(rng);
+//        if (rng[0] == rng[1]) {
+//            const double eps = (rng[0] == 0.0 ? 1.0 : std::abs(rng[0]) * 0.01);
+//            rng[0] -= eps;
+//            rng[1] += eps;
+//        }
+//    } else {
+//        rng[0] = vtuScalarMin;
+//        rng[1] = vtuScalarMax;
+//        if (rng[0] == rng[1]) rng[1] = rng[0] + 1.0;
+//    }
 
-    // LUT
-    auto lut = vtkSmartPointer<vtkLookupTable>::New();
-    lut->SetNumberOfTableValues(256);
-    lut->SetHueRange(0.667, 0.0);
-    lut->SetSaturationRange(1.0, 1.0);
-    lut->SetValueRange(1.0, 1.0);
-    lut->SetRange(rng);
-    lut->Build();
+//    // LUT
+//    auto lut = vtkSmartPointer<vtkLookupTable>::New();
+//    lut->SetNumberOfTableValues(256);
+//    lut->SetHueRange(0.667, 0.0);
+//    lut->SetSaturationRange(1.0, 1.0);
+//    lut->SetValueRange(1.0, 1.0);
+//    lut->SetRange(rng);
+//    lut->Build();
 
-    vtuMapper->ScalarVisibilityOn();
-    vtuMapper->SetColorModeToMapScalars();
-    if (usePointField) {
-        vtuMapper->SetScalarModeToUsePointFieldData();
-        vtuMapper->InterpolateScalarsBeforeMappingOn();
-    } else {
-        vtuMapper->SetScalarModeToUseCellFieldData();
-        vtuMapper->InterpolateScalarsBeforeMappingOff();
-    }
-    vtuMapper->SelectColorArray(scalarArrayName.toUtf8().constData());
-    vtuMapper->SetLookupTable(lut);
-    vtuMapper->UseLookupTableScalarRangeOn();
+//    vtuMapper->ScalarVisibilityOn();
+//    vtuMapper->SetColorModeToMapScalars();
+//    if (usePointField) {
+//        vtuMapper->SetScalarModeToUsePointFieldData();
+//        vtuMapper->InterpolateScalarsBeforeMappingOn();
+//    } else {
+//        vtuMapper->SetScalarModeToUseCellFieldData();
+//        vtuMapper->InterpolateScalarsBeforeMappingOff();
+//    }
+//    vtuMapper->SelectColorArray(scalarArrayName.toUtf8().constData());
+//    vtuMapper->SetLookupTable(lut);
+//    vtuMapper->UseLookupTableScalarRangeOn();
 
-    scalarBar->SetLookupTable(lut);
-    scalarBar->SetTitle(scalarArrayName.toUtf8().constData());
-    scalarBar->SetNumberOfLabels(5);
-    scalarBar->SetVisibility(true);
+//    scalarBar->SetLookupTable(lut);
+//    scalarBar->SetTitle(scalarArrayName.toUtf8().constData());
+//    scalarBar->SetNumberOfLabels(5);
+//    scalarBar->SetVisibility(true);
 
-    bool already = false;
-    auto *props = renderer->GetViewProps();
-    props->InitTraversal();
-    while (auto *p = props->GetNextProp()) {
-        if (p == scalarBar.GetPointer()) {
-            already = true;
-            break;
-        }
-    }
-    if (!already) renderer->AddActor2D(scalarBar);
+//    bool already = false;
+//    auto *props = renderer->GetViewProps();
+//    props->InitTraversal();
+//    while (auto *p = props->GetNextProp()) {
+//        if (p == scalarBar.GetPointer()) {
+//            already = true;
+//            break;
+//        }
+//    }
+//    if (!already) renderer->AddActor2D(scalarBar);
 
-    GetRenderWindow()->Render();
+//    GetRenderWindow()->Render();
 }
 
 void VTKWidget::clearPipeline()
@@ -984,6 +958,7 @@ void VTKWidget::clearPipeline()
     vtuMapper->SetInputConnection(vtuWarp->GetOutputPort());
     vtuMapper->ScalarVisibilityOff();
     vtuActor->SetMapper(vtuMapper);
+
 
     renderer->AddActor(vtuActor);
 }
@@ -1013,6 +988,37 @@ void VTKWidget::setStep(int i)
 //    rebuildPipeline();
 }
 
+
+void VTKWidget::setScalarBar()
+{
+    double rng[2] = {0.0, 1.0};
+    auto s = vtuData.currScl.toStdList();
+    QString arrNa;
+    LOGD << s;
+    if (!s.empty()) {
+        arrNa = s.front().toString();
+        if (vtuData.rangeMin.contains(arrNa) && vtuData.rangeMax.contains(arrNa)) {
+            rng[0] = vtuData.rangeMin[arrNa];
+            rng[1] = vtuData.rangeMax[arrNa];
+        }
+    }
+
+    lut->SetRange(rng);
+    lut->Build();
+    scalarBar->SetLookupTable(lut);
+    scalarBar->SetTitle(arrNa.toUtf8().constData());
+    scalarBar->SetNumberOfLabels(8);
+    scalarBar->SetVisibility(true);
+
+    scalarBar->UnconstrainedFontSizeOn();
+    scalarBar->GetTitleTextProperty()->SetFontSize(100);
+    scalarBar->GetLabelTextProperty()->SetFontSize(25);
+
+    renderer->AddActor2D(scalarBar);
+
+    GetRenderWindow()->Render();
+}
+
 void VTKWidget::ImportVtuFile(const QStringList& files)
 {
     vtuData.vtuFiles = files;
@@ -1026,10 +1032,11 @@ void VTKWidget::ImportVtuFile(const QStringList& files)
     }
 
     setRangeMinMax();
-//    LOGD << vtuData.rangeMax;
-//    LOGD << vtuData.rangeMin;
-//    clearPipeline();
-//    currStep = 0;
+    LOGD << vtuData.rangeMax;
+    LOGD << vtuData.rangeMin;
+    clearPipeline();
+    setScalarBar();
+    vtuData.currStep = 0;
 //    setStep(0);
 //    renderer->ResetCamera();
 //    GetRenderWindow()->Render();
@@ -1044,21 +1051,21 @@ void VTKWidget::updateVtuAnimation(double s)
 
 void VTKWidget::refreshArrayList()
 {
-    vtuVecName.clear();
-    vtuSclName.clear();
-    if (!vtuug) return;
-    auto* pd = vtuug->GetPointData();
-    if (pd) {
-        for (int i = 0; i < pd->GetNumberOfArrays(); ++i) {
-            auto* arr = pd->GetArray(i);
-            if (arr && arr->GetName()) {
-                vtuSclName.append(arr->GetName());
-                if (arr->GetNumberOfComponents() == 3) {
-                    vtuVecName.append(arr->GetName());
-                }
-            }
-        }
-    }
+//    vtuVecName.clear();
+//    vtuSclName.clear();
+//    if (!vtuug) return;
+//    auto* pd = vtuug->GetPointData();
+//    if (pd) {
+//        for (int i = 0; i < pd->GetNumberOfArrays(); ++i) {
+//            auto* arr = pd->GetArray(i);
+//            if (arr && arr->GetName()) {
+//                vtuSclName.append(arr->GetName());
+//                if (arr->GetNumberOfComponents() == 3) {
+//                    vtuVecName.append(arr->GetName());
+//                }
+//            }
+//        }
+//    }
 
 }
 
@@ -1095,101 +1102,101 @@ void VTKWidget::setMirrorMask(int mask)
 
 void VTKWidget::rebuildPipeline()
 {
-    if (!vtuug) return ;
+//    if (!vtuug) return ;
 
-    mirrorSurfaceFilter = nullptr;
-    mirrorReverseFilter = nullptr;
-    mapperFinalAlgorithm = nullptr;
+//    mirrorSurfaceFilter = nullptr;
+//    mirrorReverseFilter = nullptr;
+//    mapperFinalAlgorithm = nullptr;
 
-    if (mirrorMode != MirrorNone && mirrorOrder.empty() ) {
-        if (mirrorMode & MirrorXY) mirrorOrder.push_back(MirrorXY);
-        if (mirrorMode & MirrorXZ) mirrorOrder.push_back(MirrorXZ);
-        if (mirrorMode & MirrorYZ) mirrorOrder.push_back(MirrorYZ);
-    }
+//    if (mirrorMode != MirrorNone && mirrorOrder.empty() ) {
+//        if (mirrorMode & MirrorXY) mirrorOrder.push_back(MirrorXY);
+//        if (mirrorMode & MirrorXZ) mirrorOrder.push_back(MirrorXZ);
+//        if (mirrorMode & MirrorYZ) mirrorOrder.push_back(MirrorYZ);
+//    }
 
-    auto createTransform = [](MirrorPlane plane) {
-        auto t = vtkSmartPointer<vtkTransform>::New();
-        double sx = 1.0, sy = 1.0, sz = 1.0;
-        switch (plane) {
-        case MirrorXY: sz = -1.0; break;
-        case MirrorXZ: sy = -1.0; break;
-        case MirrorYZ: sx = -1.0; break;
-        default: break;
-        }
-        t->Scale(sx, sy, sz);
-        return t;
-    };
+//    auto createTransform = [](MirrorPlane plane) {
+//        auto t = vtkSmartPointer<vtkTransform>::New();
+//        double sx = 1.0, sy = 1.0, sz = 1.0;
+//        switch (plane) {
+//        case MirrorXY: sz = -1.0; break;
+//        case MirrorXZ: sy = -1.0; break;
+//        case MirrorYZ: sx = -1.0; break;
+//        default: break;
+//        }
+//        t->Scale(sx, sy, sz);
+//        return t;
+//    };
 
-    vtkSmartPointer<vtkUnstructuredGrid> dataForWarp = vtuug;
+//    vtkSmartPointer<vtkUnstructuredGrid> dataForWarp = vtuug;
 
-    if (mirrorMode != MirrorNone && vtuug) {
-        auto workingData = vtkSmartPointer<vtkUnstructuredGrid>::New();
-        workingData->ShallowCopy(vtuug);
+//    if (mirrorMode != MirrorNone && vtuug) {
+//        auto workingData = vtkSmartPointer<vtkUnstructuredGrid>::New();
+//        workingData->ShallowCopy(vtuug);
 
-        for (auto plane : mirrorOrder) {
-            auto currentData = workingData;
+//        for (auto plane : mirrorOrder) {
+//            auto currentData = workingData;
 
-            auto tf = vtkSmartPointer<vtkTransformFilter>::New();
-            tf->SetTransform(createTransform(plane));
-            tf->SetInputData(currentData);
-            tf->Update();
+//            auto tf = vtkSmartPointer<vtkTransformFilter>::New();
+//            tf->SetTransform(createTransform(plane));
+//            tf->SetInputData(currentData);
+//            tf->Update();
 
-            auto append = vtkSmartPointer<vtkAppendFilter>::New();
-            append->SetMergePoints(true);
-            append->AddInputData(currentData);
-            append->AddInputData(tf->GetOutput());
-            append->Update();
+//            auto append = vtkSmartPointer<vtkAppendFilter>::New();
+//            append->SetMergePoints(true);
+//            append->AddInputData(currentData);
+//            append->AddInputData(tf->GetOutput());
+//            append->Update();
 
-            auto combined = vtkSmartPointer<vtkUnstructuredGrid>::New();
-            combined->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(append->GetOutput()));
-            workingData = combined;
-        }
-        dataForWarp = workingData;
-    }
+//            auto combined = vtkSmartPointer<vtkUnstructuredGrid>::New();
+//            combined->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(append->GetOutput()));
+//            workingData = combined;
+//        }
+//        dataForWarp = workingData;
+//    }
 
-    mirroredDataCache = dataForWarp;
-    vtuWarp->SetInputData(mirroredDataCache);
-    mapperFinalAlgorithm = vtuWarp;
+//    mirroredDataCache = dataForWarp;
+//    vtuWarp->SetInputData(mirroredDataCache);
+//    mapperFinalAlgorithm = vtuWarp;
 
-    QString dispName = currVecName;
-    if (dispName.isEmpty()) {
-        dispName = vtuVecName.isEmpty() ? QStringLiteral("U") : vtuVecName.first();
-    }
-    const QByteArray dispNameBytes = dispName.toUtf8();
-    const char* dispNameC = dispNameBytes.constData();
+//    QString dispName = currVecName;
+//    if (dispName.isEmpty()) {
+//        dispName = vtuVecName.isEmpty() ? QStringLiteral("U") : vtuVecName.first();
+//    }
+//    const QByteArray dispNameBytes = dispName.toUtf8();
+//    const char* dispNameC = dispNameBytes.constData();
 
-    vtkDataSet* vectorSource = mirroredDataCache ? static_cast<vtkDataSet*>(mirroredDataCache.GetPointer()) : static_cast<vtkDataSet*>(vtuug.GetPointer());
-    if (vectorSource && vectorSource->GetPointData()) {
-        if (auto* arr = vectorSource->GetPointData()->GetArray(dispNameC)) {
-            vectorSource->GetPointData()->SetVectors(arr);
-        }
-    }
+//    vtkDataSet* vectorSource = mirroredDataCache ? static_cast<vtkDataSet*>(mirroredDataCache.GetPointer()) : static_cast<vtkDataSet*>(vtuug.GetPointer());
+//    if (vectorSource && vectorSource->GetPointData()) {
+//        if (auto* arr = vectorSource->GetPointData()->GetArray(dispNameC)) {
+//            vectorSource->GetPointData()->SetVectors(arr);
+//        }
+//    }
 
-    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, dispNameC);
-    vtuWarp->Modified();
-    vtuWarp->Update();
+//    vtuWarp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, dispNameC);
+//    vtuWarp->Modified();
+//    vtuWarp->Update();
 
-    vtkAlgorithmOutput* mapperInput = vtuWarp->GetOutputPort();
-    if (mirrorMode != MirrorNone) {
-        mirrorSurfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
-        mirrorSurfaceFilter->SetInputConnection(mapperInput);
-        mapperFinalAlgorithm = mirrorSurfaceFilter;
+//    vtkAlgorithmOutput* mapperInput = vtuWarp->GetOutputPort();
+//    if (mirrorMode != MirrorNone) {
+//        mirrorSurfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+//        mirrorSurfaceFilter->SetInputConnection(mapperInput);
+//        mapperFinalAlgorithm = mirrorSurfaceFilter;
 
-        mirrorReverseFilter = vtkSmartPointer<vtkReverseSense>::New();
-        mirrorReverseFilter->SetInputConnection(mirrorSurfaceFilter->GetOutputPort());
-        mirrorReverseFilter->ReverseNormalsOn();
-        mapperInput = mirrorReverseFilter->GetOutputPort();
-        mapperFinalAlgorithm = mirrorReverseFilter;
-    }
+//        mirrorReverseFilter = vtkSmartPointer<vtkReverseSense>::New();
+//        mirrorReverseFilter->SetInputConnection(mirrorSurfaceFilter->GetOutputPort());
+//        mirrorReverseFilter->ReverseNormalsOn();
+//        mapperInput = mirrorReverseFilter->GetOutputPort();
+//        mapperFinalAlgorithm = mirrorReverseFilter;
+//    }
 
-    vtuMapper->SetInputConnection(mapperInput);
-    vtuMapper->Update();
-    vtuActor->SetMapper(vtuMapper);
+//    vtuMapper->SetInputConnection(mapperInput);
+//    vtuMapper->Update();
+//    vtuActor->SetMapper(vtuMapper);
 
-    if (mapperFinalAlgorithm) {
-        mapperFinalAlgorithm->Update();
-    }
-    GetRenderWindow()->Render();
+//    if (mapperFinalAlgorithm) {
+//        mapperFinalAlgorithm->Update();
+//    }
+//    GetRenderWindow()->Render();
 }
 
 void VTKWidget::viewOrigin()
