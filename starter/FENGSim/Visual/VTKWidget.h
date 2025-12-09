@@ -292,7 +292,7 @@ private:
 
 signals:
     void filesChanged(const QStringList& files);
-
+    void arraysChanged(const VtuData& vtuData);
 
     // *******************************************************
     // general

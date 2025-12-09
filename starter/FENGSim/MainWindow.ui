@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1569</width>
-    <height>1163</height>
+    <width>2005</width>
+    <height>1196</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -71,7 +71,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1569</width>
+     <width>2005</width>
      <height>22</height>
     </rect>
    </property>
@@ -219,7 +219,7 @@
    </property>
    <property name="maximumSize">
     <size>
-     <width>400</width>
+     <width>600</width>
      <height>1000</height>
     </size>
    </property>
@@ -665,17 +665,17 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="TransportWindow.qrc"/>
-  <include location="Machining/machining.qrc"/>
-  <include location="MeasureWidnow.qrc"/>
-  <include location="Pipe/fig/PipeWindow.qrc"/>
-  <include location="CADWindow.qrc"/>
-  <include location="SPCWindow.qrc"/>
-  <include location="MeshWindow.qrc"/>
-  <include location="OCPoro.qrc"/>
-  <include location="Rivet/RivetWindow.qrc"/>
   <include location="MainWindow.qrc"/>
+  <include location="Pipe/fig/PipeWindow.qrc"/>
+  <include location="Machining/machining.qrc"/>
+  <include location="Rivet/RivetWindow.qrc"/>
+  <include location="SPCWindow.qrc"/>
+  <include location="MeasureWidnow.qrc"/>
+  <include location="MeshWindow.qrc"/>
+  <include location="TransportWindow.qrc"/>
+  <include location="CADWindow.qrc"/>
   <include location="System.qrc"/>
+  <include location="OCPoro.qrc"/>
  </resources>
  <connections/>
 </ui>

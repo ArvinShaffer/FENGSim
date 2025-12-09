@@ -38,6 +38,8 @@ public slots:
 
     void receiveFilesChange(const QStringList& files);
 
+    void receiveArray(const VtuData& vtuData);
+
 private slots:
     void on_openCalpre_clicked();
 

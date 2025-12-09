@@ -965,12 +965,13 @@ void VTKWidget::clearPipeline()
 
 void VTKWidget::setStep(int i)
 {
-//    if (vtuFiles.isEmpty() || !vtuReader)
-//        return;
-//    currStep = std::clamp(i, 0, vtuFiles.size() - 1);
-//    vtuReader->SetFileName(vtuFiles[currStep].toUtf8().constData());
-//    vtuReader->Update();
-//    vtuug = vtuReader->GetOutput();
+    if (vtuData.vtuFiles.isEmpty() || !vtuReader)
+        return;
+    vtuData.currStep = std::clamp(i, 0, vtuData.vtuFiles.size() - 1);
+    vtuReader->SetFileName(vtuData.vtuFiles[vtuData.currStep].toUtf8().constData());
+    vtuReader->Update();
+    vtuug = vtuReader->GetOutput();
+    refreshArrayList();
 //    auto printAttrs = [&](const char* tag, vtkDataSet* ds){
 //        if (!ds) { qDebug() << tag << " = <null>"; return; }
 //        auto* pd = ds->GetPointData();
@@ -1052,22 +1053,41 @@ void VTKWidget::updateVtuAnimation(double s)
 
 void VTKWidget::refreshArrayList()
 {
-//    vtuVecName.clear();
-//    vtuSclName.clear();
-//    if (!vtuug) return;
-//    auto* pd = vtuug->GetPointData();
-//    if (pd) {
-//        for (int i = 0; i < pd->GetNumberOfArrays(); ++i) {
-//            auto* arr = pd->GetArray(i);
-//            if (arr && arr->GetName()) {
-//                vtuSclName.append(arr->GetName());
-//                if (arr->GetNumberOfComponents() == 3) {
-//                    vtuVecName.append(arr->GetName());
-//                }
-//            }
-//        }
-//    }
+    vtuData.vecName.clear();
+        vtuData.sclName.clear();
 
+        if (!vtuug) return;
+        vtkPointData* pd = vtuug->GetPointData();
+
+        if (!pd) return;
+        for (int i = 0; i < pd->GetNumberOfArrays(); ++i) {
+            vtkDataArray* arr = pd->GetArray(i);
+            if (!arr || !arr->GetName()) continue;
+
+            QString name = arr->GetName();
+            int comps = arr->GetNumberOfComponents();
+
+            if (comps == 3) {
+                vtuData.vecName.append(name);
+            }
+            QStringList compNames;
+            for (int c = 0; c < comps; ++c) {
+                const char* cname = arr->GetComponentName(c);
+                if (cname && *cname){
+                    compNames << cname;
+                }
+                else {
+                    if (comps == 1) {
+                        compNames << name;
+                    }
+                    else {
+                        compNames << QString("%1_%2").arg(name).arg(c);
+                    }
+                }
+            }
+            vtuData.sclName[name] = compNames;
+        }
+        emit arraysChanged(vtuData);
 }
 
 

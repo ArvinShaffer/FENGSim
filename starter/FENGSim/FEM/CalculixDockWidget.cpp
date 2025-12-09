@@ -381,3 +381,43 @@ void CalculixDockWidget::receiveFilesChange(const QStringList& files)
         ui->frame->setCurrentIndex(0);
     }
 }
+
+void CalculixDockWidget::receiveArray(const VtuData& vtuData)
+{
+    {
+        QSignalBlocker block(ui->vectors);
+        ui->vectors->clear();
+        ui->vectors->addItem("(无)", QString());
+        for (const auto& name: vtuData.vecName) {
+            ui->vectors->addItem(name, name);
+        }
+        int idx = ui->vectors->findData(vtuData.currVec);
+        if (idx < 0) idx = 0;
+        ui->vectors->setCurrentIndex(idx);
+        pending.vectorArray = ui->vectors->currentData().toString();
+        ui->vectors->setEnabled(ui->vectors->count() > 1);
+    }
+    {
+        QSignalBlocker block(ui->colorSelect);
+        ui->colorSelect->clear();
+        ui->colorSelect->addItem(QString("(无)"), QVariantList({QString(""), QString("")}));
+        for (auto it = vtuData.sclName.begin(); it != vtuData.sclName.cend(); ++it) {
+            const QString& key = it.key();
+            const QStringList& subList = it.value();
+
+            for (const QString& sub : subList) {
+                QString display = key + "_" + sub;
+                QVariantList payload;
+                payload << key << sub;
+                ui->colorSelect->addItem(display, payload);
+            }
+        }
+
+        int idx = ui->colorSelect->findData(vtuData.currScl);
+        if (idx < 0) idx = 0;
+        ui->colorSelect->setCurrentIndex(idx);
+        auto data = ui->colorSelect->currentData();
+        pending.scalar = data.toList();
+        ui->colorSelect->setEnabled(ui->colorSelect->count() > 1);
+    }
+}
