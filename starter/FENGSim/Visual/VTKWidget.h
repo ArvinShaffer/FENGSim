@@ -44,6 +44,7 @@
 
 class VTKWidget : public QVTKOpenGLWidget
 {
+    Q_OBJECT
 public:
     vtkNew<vtkScalarBarActor> scalarBar;
 
@@ -289,7 +290,8 @@ private:
 
     void rebuildPipeline();
 
-
+signals:
+    void filesChanged(const QStringList& files);
 
 
     // *******************************************************

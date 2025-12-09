@@ -367,3 +367,17 @@ void CalculixDockWidget::on_chkLoop_stateChanged(int arg1)
     }
     emit signalSetLoop(looping);
 }
+
+
+void CalculixDockWidget::receiveFilesChange(const QStringList& files)
+{
+    QSignalBlocker block(ui->frame);
+    ui->frame->clear();
+    for (const auto& path : files) {
+        ui->frame->addItem(QFileInfo(path).fileName());
+    }
+    ui->frame->setEnabled(!files.isEmpty());
+    if (!files.isEmpty()) {
+        ui->frame->setCurrentIndex(0);
+    }
+}

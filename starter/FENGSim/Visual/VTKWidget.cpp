@@ -1037,9 +1037,10 @@ void VTKWidget::ImportVtuFile(const QStringList& files)
     clearPipeline();
     setScalarBar();
     vtuData.currStep = 0;
-//    setStep(0);
-//    renderer->ResetCamera();
-//    GetRenderWindow()->Render();
+    emit filesChanged(vtuData.vtuFiles);
+    setStep(0);
+    renderer->ResetCamera();
+    GetRenderWindow()->Render();
 }
 
 void VTKWidget::updateVtuAnimation(double s)

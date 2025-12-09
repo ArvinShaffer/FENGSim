@@ -36,7 +36,7 @@ public:
 public slots:
     void receiveVtuSclName(QStringList &vtuSclName);
 
-
+    void receiveFilesChange(const QStringList& files);
 
 private slots:
     void on_openCalpre_clicked();

@@ -426,6 +426,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(cal_dock, &CalculixDockWidget::changeScale, this, &MainWindow::setVtuScale);
     connect(cal_dock, &CalculixDockWidget::signalSetSpeed, this, &MainWindow::setSpeed);
     connect(cal_dock, &CalculixDockWidget::signalSetLoop, this, &MainWindow::setLoop);
+    connect(vtk_widget, &VTKWidget::filesChanged, cal_dock, &CalculixDockWidget::receiveFilesChange);
     setSpeed(speed);
 
 
