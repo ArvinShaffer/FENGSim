@@ -56,7 +56,8 @@ CalculixDockWidget::CalculixDockWidget(QWidget *parent) :
         if (ui->chkXY->isChecked()) mask |= 1;
         if (ui->chkXZ->isChecked()) mask |= 2;
         if (ui->chkYZ->isChecked()) mask |= 4;
-        emit chkxyz(mask);
+        //emit chkxyz(mask);
+        pending.mirrorMask = mask;
     };
     connect(ui->chkXY, &QCheckBox::toggled, this, [=](bool) { updateMirrorMask(); });
     connect(ui->chkXZ, &QCheckBox::toggled, this, [=](bool) { updateMirrorMask(); });
@@ -327,12 +328,14 @@ void CalculixDockWidget::receiveVtuSclName(QStringList &vtuSclName)
 
 void CalculixDockWidget::on_colorSelect_currentIndexChanged(const QString &arg1)
 {
-    emit changeColors(arg1);
+    QVariant data = ui->colorSelect->currentData();
+    pending.scalar =  data.toList();
+    pending.scalarContent = arg1;
 }
 
 void CalculixDockWidget::on_scale_valueChanged(double arg1)
 {
-    emit changeScale(arg1);
+    pending.warpScale = arg1;
 }
 
 
@@ -353,7 +356,7 @@ void CalculixDockWidget::on_pauseVtu_clicked()
 
 void CalculixDockWidget::on_vtuSpeed_valueChanged(double arg1)
 {
-    emit signalSetSpeed(arg1);
+    pending.playSpeed = arg1;
 }
 
 
@@ -361,11 +364,11 @@ void CalculixDockWidget::on_vtuSpeed_valueChanged(double arg1)
 void CalculixDockWidget::on_chkLoop_stateChanged(int arg1)
 {
     if (arg1) {
-        looping = true;
+        pending.loop = true;
     } else {
-        looping = false;
+        pending.loop = false;
     }
-    emit signalSetLoop(looping);
+
 }
 
 
@@ -420,4 +423,23 @@ void CalculixDockWidget::receiveArray(const VtuData& vtuData)
         pending.scalar = data.toList();
         ui->colorSelect->setEnabled(ui->colorSelect->count() > 1);
     }
+}
+
+void CalculixDockWidget::receiveFrame(const VtuData& vtuData)
+{
+    int currStep = vtuData.currStep;
+    if (currStep >= 0 && currStep < ui->frame->count()) {
+        QSignalBlocker block(ui->frame);
+        ui->frame->setCurrentIndex(currStep);
+    }
+}
+
+void CalculixDockWidget::on_vectors_currentIndexChanged(const QString &arg1)
+{
+    pending.vectorArray = ui->vectors->currentData().toString();
+}
+
+void CalculixDockWidget::on_apply_clicked()
+{
+    emit signalApply(pending);
 }

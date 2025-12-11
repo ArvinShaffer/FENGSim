@@ -386,6 +386,7 @@ public slots:
     void setSpeed(double sps);
     void setLoop(bool on);
     void chkXYZ(int xyz);
+    void receiveApply(const PendingOptions& pending);
 
 
 signals:

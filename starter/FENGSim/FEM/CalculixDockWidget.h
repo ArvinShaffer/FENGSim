@@ -40,6 +40,8 @@ public slots:
 
     void receiveArray(const VtuData& vtuData);
 
+    void receiveFrame(const VtuData& vtuData);
+
 private slots:
     void on_openCalpre_clicked();
 
@@ -70,13 +72,16 @@ private slots:
 
     void on_chkLoop_stateChanged(int arg1);
 
+    void on_apply_clicked();
+
+    void on_vectors_currentIndexChanged(const QString &arg1);
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;
     QString workPath;
     QString frd2vtu;
     QProcess process;
-    bool looping = false;
     PendingOptions pending;
 
 
@@ -84,11 +89,12 @@ signals:
     void showInpFile(const QString &filePath);
     void showVtuFile(const QStringList &filesList);
     void signalPlayPause(bool playing);
-    void changeColors(const QString &name);
-    void changeScale(double scale);
-    void signalSetSpeed(double sps);
-    void signalSetLoop(double on);
-    void chkxyz(int xyz);
+//    void changeColors(const QString &name);
+//    void changeScale(double scale);
+//    void signalSetSpeed(double sps);
+//    void signalSetLoop(double on);
+//    void chkxyz(int xyz);
+    void signalApply(const PendingOptions& pending);
 
 };
 

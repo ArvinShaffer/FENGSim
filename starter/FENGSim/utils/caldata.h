@@ -24,8 +24,9 @@ class PendingOptions {
 public:
     QString vectorArray;
     QVariantList scalar;
+    QString scalarContent;
     bool wireframe = true;
-    bool loop = true;
+    bool loop = false;
     double warpScale = 0.0;
     double playSpeed = 1.0;
     int mirrorMask = 0;

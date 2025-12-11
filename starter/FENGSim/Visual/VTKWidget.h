@@ -239,25 +239,20 @@ private:
     // *******************************************************
     // calculix
 public:
-    enum MirrorPlane {
-      MirrorNone = 0,
-      MirrorXY = 1 << 0,
-      MirrorXZ = 1 << 1,
-      MirrorYZ = 1 << 2
-    };
-
     void ImportCalInpFile(std::string str);
     void ImportVtuFile(const QStringList& file);
     void vtuSetupEmptyScene();
     void updateVtuAnimation(double s);
-    void applyColoring(const QString& scalarArrayName);
+    void applyColoring();
     void clearPipeline();
     void setStep(int i);
     void refreshArrayList();
     void setMirrorMask(int mask);
     void viewOrigin();
     void setScalarBar();
-
+    void clearColor();
+    void setVector(const QString& vectorName);
+    void setWarpScale(double s);
     VtuData vtuData;
 
 //    QStringList vtuVecName;
@@ -281,18 +276,17 @@ private:
     bool usePointData = true;              // true: PointData, false: CellData
 
     // mirrors
-    int mirrorMode = MirrorNone;
-    std::vector<MirrorPlane> mirrorOrder;
-    vtkSmartPointer<vtkUnstructuredGrid> mirroredDataCache;
-    vtkSmartPointer<vtkDataSetSurfaceFilter> mirrorSurfaceFilter;
-    vtkSmartPointer<vtkReverseSense> mirrorReverseFilter;
-    vtkAlgorithm* mapperFinalAlgorithm = nullptr;
-
     void rebuildPipeline();
 
 signals:
     void filesChanged(const QStringList& files);
     void arraysChanged(const VtuData& vtuData);
+    void frameChanged(const VtuData& vtuData);
+
+
+
+
+
 
     // *******************************************************
     // general

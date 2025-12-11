@@ -422,17 +422,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(vtuTimer, &QTimer::timeout, this, &MainWindow::vtuAnimationSlot);
     connect(cal_dock, &CalculixDockWidget::signalPlayPause, this, &MainWindow::slotPlayPause);
     connect(this, &MainWindow::sendVtuSclName, cal_dock, &CalculixDockWidget::receiveVtuSclName);
-    connect(cal_dock, &CalculixDockWidget::changeColors, this, &MainWindow::setVtuColor);
-    connect(cal_dock, &CalculixDockWidget::changeScale, this, &MainWindow::setVtuScale);
-    connect(cal_dock, &CalculixDockWidget::signalSetSpeed, this, &MainWindow::setSpeed);
-    connect(cal_dock, &CalculixDockWidget::signalSetLoop, this, &MainWindow::setLoop);
+//    connect(cal_dock, &CalculixDockWidget::changeColors, this, &MainWindow::setVtuColor);
+//    connect(cal_dock, &CalculixDockWidget::changeScale, this, &MainWindow::setVtuScale);
+//    connect(cal_dock, &CalculixDockWidget::signalSetSpeed, this, &MainWindow::setSpeed);
+//    connect(cal_dock, &CalculixDockWidget::signalSetLoop, this, &MainWindow::setLoop);
     connect(vtk_widget, &VTKWidget::filesChanged, cal_dock, &CalculixDockWidget::receiveFilesChange);
     connect(vtk_widget, &VTKWidget::arraysChanged, cal_dock, &CalculixDockWidget::receiveArray);
+    connect(vtk_widget, &VTKWidget::frameChanged, cal_dock, &CalculixDockWidget::receiveFrame);
+    connect(cal_dock, &CalculixDockWidget::signalApply, this, &MainWindow::receiveApply);
     setSpeed(speed);
 
 
     // 镜像设置
-    connect(cal_dock, &CalculixDockWidget::chkxyz, this, &MainWindow::chkXYZ);
+    //connect(cal_dock, &CalculixDockWidget::chkxyz, this, &MainWindow::chkXYZ);
 
 
     return;
@@ -703,7 +705,17 @@ void MainWindow::chkXYZ(int mask)
     vtk_widget->setMirrorMask(mask);
 }
 
-
+void MainWindow::receiveApply(const PendingOptions& pending)
+{
+    LOGD << "pending.vectorArray:" << pending.vectorArray;
+    LOGD << "pending.scalar:" << pending.scalar;
+    LOGD << "pending.loop:" << pending.loop ;
+    LOGD << "pending.warpScale:" << pending.warpScale;
+    LOGD << "pending.playSpeed:" << pending.playSpeed;
+    LOGD << "pending.mirrorMask:" << pending.mirrorMask;
+    vtk_widget->setWarpScale(pending.warpScale);
+    vtk_widget->setVector(pending.vectorArray);
+}
 
 
 
