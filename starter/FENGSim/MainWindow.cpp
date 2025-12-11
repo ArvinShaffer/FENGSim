@@ -713,8 +713,11 @@ void MainWindow::receiveApply(const PendingOptions& pending)
     LOGD << "pending.warpScale:" << pending.warpScale;
     LOGD << "pending.playSpeed:" << pending.playSpeed;
     LOGD << "pending.mirrorMask:" << pending.mirrorMask;
+    LOGD << "pending.currFrame:" << pending.currFrame;
     vtk_widget->setWarpScale(pending.warpScale);
     vtk_widget->setVector(pending.vectorArray);
+
+    vtk_widget->setStep(pending.currFrame);
 }
 
 

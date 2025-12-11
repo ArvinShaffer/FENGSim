@@ -439,7 +439,14 @@ void CalculixDockWidget::on_vectors_currentIndexChanged(const QString &arg1)
     pending.vectorArray = ui->vectors->currentData().toString();
 }
 
+void CalculixDockWidget::on_frame_currentIndexChanged(int index)
+{
+    pending.currFrame = index;
+}
+
 void CalculixDockWidget::on_apply_clicked()
 {
     emit signalApply(pending);
 }
+
+

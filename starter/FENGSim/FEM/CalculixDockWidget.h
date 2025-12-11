@@ -76,6 +76,8 @@ private slots:
 
     void on_vectors_currentIndexChanged(const QString &arg1);
 
+    void on_frame_currentIndexChanged(int index);
+
 private:
     Ui::CalculixDockWidget *ui;
     QString calPath;

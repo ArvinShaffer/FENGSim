@@ -30,6 +30,7 @@ public:
     double warpScale = 0.0;
     double playSpeed = 1.0;
     int mirrorMask = 0;
+    int currFrame;
 };
 
 class VtuData {

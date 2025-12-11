@@ -1011,8 +1011,9 @@ void VTKWidget::setWarpScale(double s)
     vtuData.warpScale = s;
     vtuWarp->SetScaleFactor(s);
     vtuWarp->Update();
-    GetRenderWindow()->Render();
+//    GetRenderWindow()->Render();
 }
+
 void VTKWidget::refreshArrayList()
 {
     vtuData.vecName.clear();
@@ -1089,7 +1090,7 @@ void VTKWidget::setMirrorMask(int mask)
 void VTKWidget::setVector(const QString& vectorName)
 {
     vtuData.currVec = vectorName;
-    rebuildPipeline();
+//    rebuildPipeline();
 }
 
 void VTKWidget::rebuildPipeline()
