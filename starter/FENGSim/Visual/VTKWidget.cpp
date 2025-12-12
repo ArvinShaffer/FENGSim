@@ -1011,7 +1011,6 @@ void VTKWidget::setWarpScale(double s)
     vtuData.warpScale = s;
     vtuWarp->SetScaleFactor(s);
     vtuWarp->Update();
-//    GetRenderWindow()->Render();
 }
 
 void VTKWidget::refreshArrayList()
@@ -1056,35 +1055,36 @@ void VTKWidget::refreshArrayList()
 
 void VTKWidget::setMirrorMask(int mask)
 {
+    vtuData.mask = mask;
     int sanitized = std::max(0, mask);
-        sanitized &= (MirrorXY | MirrorXZ | MirrorYZ);
+    sanitized &= (MirrorXY | MirrorXZ | MirrorYZ);
 
 
-        if (sanitized != vtuData.mirrorMode) {
-            auto updateOrderForPlane = [&](MirrorPlane plane){
-                const bool want = (sanitized & plane);
-                auto it = std::find(vtuData.mirrorOrder.begin(), vtuData.mirrorOrder.end(), plane);
-                if (want) {
-                    if (it == vtuData.mirrorOrder.end()) {
-                        vtuData.mirrorOrder.push_back(plane);
-                    }
-                } else if (it != vtuData.mirrorOrder.end()) {
-                    vtuData.mirrorOrder.erase(it);
+    if (sanitized != vtuData.mirrorMode) {
+        auto updateOrderForPlane = [&](MirrorPlane plane){
+            const bool want = (sanitized & plane);
+            auto it = std::find(vtuData.mirrorOrder.begin(), vtuData.mirrorOrder.end(), plane);
+            if (want) {
+                if (it == vtuData.mirrorOrder.end()) {
+                    vtuData.mirrorOrder.push_back(plane);
                 }
-            };
-
-            updateOrderForPlane(MirrorXY);
-            updateOrderForPlane(MirrorXZ);
-            updateOrderForPlane(MirrorYZ);
-
-            vtuData.mirrorMode = sanitized;
-            if (vtuData.mirrorMode == MirrorNone) {
-                vtuData.mirrorOrder.clear();
+            } else if (it != vtuData.mirrorOrder.end()) {
+                vtuData.mirrorOrder.erase(it);
             }
-        }
+        };
 
-        LOGD << "mirrorOrder: " << vtuData.mirrorOrder;
-        rebuildPipeline();
+        updateOrderForPlane(MirrorXY);
+        updateOrderForPlane(MirrorXZ);
+        updateOrderForPlane(MirrorYZ);
+
+        vtuData.mirrorMode = sanitized;
+        if (vtuData.mirrorMode == MirrorNone) {
+            vtuData.mirrorOrder.clear();
+        }
+    }
+
+    LOGD << "mirrorOrder: " << vtuData.mirrorOrder;
+    rebuildPipeline();
 }
 
 void VTKWidget::setVector(const QString& vectorName)
@@ -1203,6 +1203,15 @@ void VTKWidget::rebuildPipeline()
         GetRenderWindow()->Render();
 }
 
+
+void VTKWidget::setColorArray(const QVariantList& scalar)
+{
+    LOGD << scalar;
+    vtuData.currScl = scalar;
+    setScalarBar();
+    applyColoring();
+}
+
 void VTKWidget::viewOrigin()
 {
     vtkSmartPointer<vtkAxesActor> worldAxes = vtkSmartPointer<vtkAxesActor>::New();
@@ -1214,6 +1223,9 @@ void VTKWidget::viewOrigin()
 
     renderer->AddActor(worldAxes);
 }
+
+
+
 
 
 

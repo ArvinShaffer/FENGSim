@@ -253,6 +253,7 @@ public:
     void clearColor();
     void setVector(const QString& vectorName);
     void setWarpScale(double s);
+    void setColorArray(const QVariantList& scalar);
     VtuData vtuData;
 
 //    QStringList vtuVecName;

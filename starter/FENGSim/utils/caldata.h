@@ -53,6 +53,7 @@ public:
     //double sclMax = 1.0;
     double scalar = 0.0;
     double warpScale = 0.0;
+    int mask;
 
     QMap<QString, double> rangeMin;
     QMap<QString, double> rangeMax;

@@ -651,8 +651,8 @@ void MainWindow::ImportVtuFile(const QStringList &path)
 
 void MainWindow::setSpeed(double sps)
 {
-    speed = sps;
-    vtutimeSec = speed > 0.1 ? speed : 0.1;
+    vtk_widget->vtuData.playFps = sps;
+    vtutimeSec = sps > 0.1 ? sps : 0.1;
     int intervalMs = int(1000.0 / vtutimeSec);
     intervalMs = intervalMs > 1 ? intervalMs : 1;
     vtuTimer->setInterval(intervalMs);
@@ -660,35 +660,29 @@ void MainWindow::setSpeed(double sps)
 
 void MainWindow::vtuAnimationSlot()
 {
-//    if (vtk_widget->vtuFiles.isEmpty()) return;
-//    int next = vtk_widget->currStep + 1;
-//    if (next >= vtk_widget->vtuFiles.size()) {
-//        if (!looping) {
-//            slotPlayPause(false);
-//            return ;
-//        }
-//        next = 0;
-//    }
-//    vtk_widget->setStep(next);
+    if (vtk_widget->vtuData.vtuFiles.isEmpty()) return;
+    int next = vtk_widget->vtuData.currStep + 1;
+    if (next >= vtk_widget->vtuData.vtuFiles.size()) {
+        if (!vtk_widget->vtuData.loop) {
+            slotPlayPause(false);
+            return ;
+        }
+        next = 0;
+    }
+    vtk_widget->setStep(next);
 }
 
 void MainWindow::slotPlayPause(bool playing)
 {
-//    if (vtk_widget->vtuFiles.isEmpty()) return;
-//    if(playing) {
-//        setSpeed(speed);
-//        vtuTimer->start();
-//    } else {
-//        vtuTimer->stop();
-//    }
+    if (vtk_widget->vtuData.vtuFiles.isEmpty()) return;
+    if(playing) {
+        setSpeed(vtk_widget->vtuData.playFps);
+        vtuTimer->start();
+    } else {
+        vtuTimer->stop();
+    }
 }
 
-void MainWindow::setVtuColor(const QString &name)
-{
-//    if (vtk_widget->currSclName == name) return;
-//    vtk_widget->currSclName = name;
-//    vtk_widget->applyColoring(name);
-}
 
 void MainWindow::setVtuScale(double s)
 {
@@ -697,7 +691,7 @@ void MainWindow::setVtuScale(double s)
 
 void MainWindow::setLoop(bool on)
 {
-    looping = on;
+    vtk_widget->vtuData.loop = on;
 }
 
 void MainWindow::chkXYZ(int mask)
@@ -714,9 +708,13 @@ void MainWindow::receiveApply(const PendingOptions& pending)
     LOGD << "pending.playSpeed:" << pending.playSpeed;
     LOGD << "pending.mirrorMask:" << pending.mirrorMask;
     LOGD << "pending.currFrame:" << pending.currFrame;
-    vtk_widget->setWarpScale(pending.warpScale);
-    vtk_widget->setVector(pending.vectorArray);
 
+    setSpeed(pending.playSpeed);
+    setLoop(pending.loop);
+    vtk_widget->setMirrorMask(pending.mirrorMask);
+    vtk_widget->setVector(pending.vectorArray);
+    vtk_widget->setColorArray(pending.scalar);
+    vtk_widget->setWarpScale(pending.warpScale);
     vtk_widget->setStep(pending.currFrame);
 }
 

@@ -381,7 +381,6 @@ public slots:
     void ImportVtuFile(const QStringList &path);
     void vtuAnimationSlot();
     void slotPlayPause(bool playing);
-    void setVtuColor(const QString &name);
     void setVtuScale(double s);
     void setSpeed(double sps);
     void setLoop(bool on);
